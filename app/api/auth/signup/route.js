@@ -1,0 +1,96 @@
+import { NextResponse } from "next/server"
+import connectDB from "../../../../lib/mongodb.js"
+import User from "../../../../models/User.js"
+import { hashPassword, generateToken } from "../../../../lib/auth.js"
+
+export async function POST(request) {
+  try {
+    await connectDB()
+
+    const { name, email, password, referralCode } = await request.json()
+
+    // Validate required fields
+    if (!name || !email || !password) {
+      return NextResponse.json({ error: "Name, email, and password are required" }, { status: 400 })
+    }
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email: email.toLowerCase() })
+    if (existingUser) {
+      return NextResponse.json({ error: "User with this email already exists" }, { status: 400 })
+    }
+
+    // Hash password
+    const passwordHash = await hashPassword(password)
+
+    // Handle referral code
+    let referredBy = null
+    let uplineUser = null
+
+    if (referralCode) {
+      uplineUser = await User.findOne({ referralCode: referralCode.toUpperCase() })
+      if (uplineUser) {
+        referredBy = uplineUser._id
+      }
+    }
+
+    // Create new user
+    const newUser = await User.create({
+      name: name.trim(),
+      email: email.toLowerCase().trim(),
+      passwordHash,
+      referredBy,
+      role: "member",
+      rank: "assistant",
+    })
+
+    // Add new user to upline's direct downline
+    if (uplineUser) {
+      uplineUser.directDownline.push(newUser._id)
+      await uplineUser.save()
+    }
+
+    // Generate JWT token
+    const token = generateToken({
+      userId: newUser._id,
+      email: newUser.email,
+      role: newUser.role,
+      rank: newUser.rank,
+    })
+
+    // Return user data (without password hash)
+    const userData = {
+      _id: newUser._id,
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role,
+      rank: newUser.rank,
+      referralCode: newUser.referralCode,
+      packageCredit: newUser.packageCredit,
+      totalIncome: newUser.totalIncome,
+      pendingIncome: newUser.pendingIncome,
+      releasedIncome: newUser.releasedIncome,
+    }
+
+    const res = NextResponse.json({
+      message: "Account created successfully",
+      user: userData,
+      token,
+      referredBy: uplineUser ? uplineUser.name : null,
+    })
+
+    // Set httpOnly auth cookie so middleware can authorize protected routes
+    res.cookies.set("token", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+    })
+
+    return res
+  } catch (error) {
+    console.error("Signup error:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+  }
+}
