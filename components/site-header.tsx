@@ -1,5 +1,5 @@
 "use client"
-import { useAuth } from "../lib/auth-context.js"
+import { useAuth } from "../lib/auth-context"
 import { Button } from "./ui/button"
 import { Badge } from "./ui/badge"
 import { MobileNav } from "./mobile-nav"

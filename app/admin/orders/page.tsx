@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect } from "react"
-import { useAuth } from "../../../lib/auth-context.js"
+import { useAuth } from "../../../lib/auth-context"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card"
 import { Badge } from "../../../components/ui/badge"
 import { Button } from "../../../components/ui/button"
@@ -81,13 +81,14 @@ export default function AdminOrdersPage() {
           return
       }
 
-      const response = await fetch(endpoint, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      })
+             const response = await fetch(endpoint, {
+         method,
+         headers: {
+           "Content-Type": "application/json",
+           Authorization: `Bearer ${token}`,
+         },
+         body: JSON.stringify({ action }),
+       })
 
       const data = await response.json()
 
@@ -288,13 +289,13 @@ export default function AdminOrdersPage() {
                     {getStatusIcon(order.status)}
                     <div>
                       <div className="flex items-center space-x-2">
-                        <p className="font-medium">Rs {order.totalAmount.toLocaleString()}</p>
+                                                 <p className="font-medium">Rs {order.total?.toLocaleString() || '0'}</p>
                         <Badge variant="outline">
-                          {order.items.length} item{order.items.length > 1 ? "s" : ""}
+                          {order.items?.length || 0} item{(order.items?.length || 0) > 1 ? "s" : ""}
                         </Badge>
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        <span className="font-medium">{order.userId.name}</span> ({order.userId.email})
+                        <span className="font-medium">{order.userId?.name || 'Unknown User'}</span> ({order.userId?.email || 'No email'})
                       </p>
                       <div className="flex items-center space-x-4 text-xs text-muted-foreground mt-1">
                         <span className="flex items-center">
@@ -308,11 +309,11 @@ export default function AdminOrdersPage() {
                       <div className="mt-2">
                         <p className="text-xs text-muted-foreground">Items:</p>
                         <div className="flex flex-wrap gap-1 mt-1">
-                          {order.items.map((item, index) => (
+                          {order.items?.map((item, index) => (
                             <Badge key={index} variant="secondary" className="text-xs">
-                              {item.productId.name} x{item.quantity}
+                              {item.productId?.name || 'Unknown Product'} x{item.quantity || 0}
                             </Badge>
-                          ))}
+                          )) || <span className="text-xs text-muted-foreground">No items</span>}
                         </div>
                       </div>
                     </div>

@@ -1,6 +1,7 @@
 "use client"
 import { useState, useEffect } from "react"
-import { useAuth } from "../../lib/auth-context.js"
+import { useAuth } from "../../lib/auth-context"
+import { User } from "../../lib/types"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card"
 import { Badge } from "../../components/ui/badge"
 import { Button } from "../../components/ui/button"
@@ -19,8 +20,16 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 
+// Type definitions for dashboard data
+interface DashboardData {
+  packages?: any
+  orders?: any
+  payouts?: any
+  reports?: any
+}
+
 export default function AdminDashboardPage() {
-  const [dashboardData, setDashboardData] = useState(null)
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
@@ -70,7 +79,7 @@ export default function AdminDashboardPage() {
     }
   }
 
-  const getStatusIcon = (status) => {
+  const getStatusIcon = (status: string) => {
     switch (status) {
       case "pending":
         return <Clock className="w-4 h-4 text-yellow-500" />
@@ -87,7 +96,7 @@ export default function AdminDashboardPage() {
     }
   }
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
         return "bg-yellow-100 text-yellow-800"
@@ -248,7 +257,7 @@ export default function AdminDashboardPage() {
           <CardContent>
             {dashboardData?.packages?.purchases?.length > 0 ? (
               <div className="space-y-4">
-                {dashboardData.packages.purchases.slice(0, 5).map((purchase) => (
+                {dashboardData?.packages?.purchases?.slice(0, 5).map((purchase: any) => (
                   <div key={purchase._id} className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="flex items-center space-x-3">
                       {getStatusIcon(purchase.status)}
@@ -291,15 +300,15 @@ export default function AdminDashboardPage() {
           <CardContent>
             {dashboardData?.orders?.orders?.length > 0 ? (
               <div className="space-y-4">
-                {dashboardData.orders.orders.slice(0, 5).map((order) => (
+                {dashboardData?.orders?.orders?.slice(0, 5).map((order: any) => (
                   <div key={order._id} className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="flex items-center space-x-3">
                       {getStatusIcon(order.status)}
                       <div>
-                        <p className="font-medium">Rs {order.totalAmount.toLocaleString()}</p>
-                        <p className="text-sm text-muted-foreground">{order.userId.name}</p>
+                        <p className="font-medium">Rs {order.total?.toLocaleString() || '0'}</p>
+                        <p className="text-sm text-muted-foreground">{order.userId?.name || 'Unknown User'}</p>
                         <p className="text-xs text-muted-foreground">
-                          {order.items.length} item{order.items.length > 1 ? "s" : ""}
+                          {order.items?.length || 0} item{(order.items?.length || 0) > 1 ? "s" : ""}
                         </p>
                       </div>
                     </div>
@@ -335,7 +344,7 @@ export default function AdminDashboardPage() {
         <CardContent>
           {dashboardData?.payouts?.payouts?.length > 0 ? (
             <div className="space-y-4">
-              {dashboardData.payouts.payouts.slice(0, 5).map((payout) => (
+              {dashboardData?.payouts?.payouts?.slice(0, 5).map((payout: any) => (
                 <div key={payout._id} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex items-center space-x-3">
                     {payout.type === "direct" ? (
@@ -344,8 +353,8 @@ export default function AdminDashboardPage() {
                       <ArrowDownRight className="w-4 h-4 text-blue-500" />
                     )}
                     <div>
-                      <p className="font-medium">Rs {payout.amount.toLocaleString()}</p>
-                      <p className="text-sm text-muted-foreground">{payout.userId.name}</p>
+                      <p className="font-medium">Rs {payout.amount?.toLocaleString() || '0'}</p>
+                      <p className="text-sm text-muted-foreground">{payout.userId?.name || 'Unknown User'}</p>
                       <p className="text-xs text-muted-foreground">
                         {payout.type === "direct" ? "Direct Payout" : `Passive Income (Level ${payout.level})`}
                       </p>

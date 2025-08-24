@@ -49,6 +49,10 @@ const OrderSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    approvedAt: {
+      type: Date,
+      default: null,
+    },
     dispatchedAt: {
       type: Date,
       default: null,

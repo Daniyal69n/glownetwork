@@ -1,20 +1,27 @@
 "use client"
-import { createContext, useContext, useEffect, useState } from "react"
+import { createContext, useContext, useEffect, useState, ReactNode } from "react"
+import { User, AuthContextType } from "./types"
 
-const AuthContext = createContext({
+const AuthContext = createContext<AuthContextType>({
   user: null,
   token: null,
   loading: true,
   login: async () => ({ success: false, error: "Not implemented" }),
   signup: async () => ({ success: false, error: "Not implemented" }),
   logout: () => {},
-  verifyCurrentUser: async () => {},
+  updateUser: () => {},
+  isAuthenticated: false,
+  isAdmin: false,
 })
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null)
+interface AuthProviderProps {
+  children: ReactNode
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
+  const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const [token, setToken] = useState(null)
+  const [token, setToken] = useState<string | null>(null)
 
   // Initialize auth state from localStorage
   useEffect(() => {
@@ -31,7 +38,7 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
-  const verifyCurrentUser = async (authToken) => {
+  const verifyCurrentUser = async (authToken: string) => {
     try {
       const response = await fetch("/api/auth/me", {
         headers: {
@@ -55,7 +62,7 @@ export function AuthProvider({ children }) {
     }
   }
 
-  const login = async (email, password) => {
+  const login = async (email: string, password: string) => {
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
@@ -84,7 +91,7 @@ export function AuthProvider({ children }) {
     }
   }
 
-  const signup = async (name, email, phone, password, referralCode) => {
+  const signup = async (name: string, email: string, phone: string, password: string, referralCode?: string) => {
     try {
       const response = await fetch("/api/auth/signup", {
         method: "POST",
@@ -139,12 +146,12 @@ export function AuthProvider({ children }) {
     })()
   }
 
-  const updateUser = (updatedUser) => {
+  const updateUser = (updatedUser: User) => {
     setUser(updatedUser)
     localStorage.setItem("user", JSON.stringify(updatedUser))
   }
 
-  const value = {
+  const value: AuthContextType = {
     user,
     token,
     loading,
@@ -159,7 +166,7 @@ export function AuthProvider({ children }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
-export function useAuth() {
+export function useAuth(): AuthContextType {
   const context = useContext(AuthContext)
   if (context === undefined) {
     throw new Error("useAuth must be used within an AuthProvider")

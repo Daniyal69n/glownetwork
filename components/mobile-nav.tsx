@@ -1,6 +1,6 @@
 "use client"
 import { useState } from "react"
-import { useAuth } from "../lib/auth-context.js"
+import { useAuth } from "../lib/auth-context"
 import { Button } from "./ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet"
 import { Badge } from "./ui/badge"

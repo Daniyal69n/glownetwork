@@ -1,7 +1,7 @@
 "use client"
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "../lib/auth-context.js"
+import { useAuth } from "../lib/auth-context"
 import { Button } from "../components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card"
 import { Sparkles, Users, TrendingUp, Gift, ArrowRight } from "lucide-react"

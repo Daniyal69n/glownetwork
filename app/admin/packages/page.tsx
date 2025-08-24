@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect } from "react"
-import { useAuth } from "../../../lib/auth-context.js"
+import { useAuth } from "../../../lib/auth-context"
 
 interface PackagePurchase {
   _id: string
