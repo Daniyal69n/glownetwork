@@ -119,6 +119,11 @@ export function SiteHeader() {
                           Payouts
                         </Button>
                       </Link>
+                      <Link href="/order-history">
+                        <Button variant="ghost" size="sm">
+                          Order History
+                        </Button>
+                      </Link>
                     </>
                   )}
 

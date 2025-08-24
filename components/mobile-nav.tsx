@@ -17,7 +17,8 @@ import {
   Gift,
   LayoutDashboard,
   Users,
-  BarChart3
+  BarChart3,
+  History
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -27,6 +28,7 @@ const userNavItems = [
   { href: "/packages", icon: Package, label: "Packages" },
   { href: "/shop", icon: ShoppingCart, label: "Shop" },
   { href: "/orders", icon: Gift, label: "My Orders" },
+  { href: "/order-history", icon: History, label: "Order History" },
   { href: "/payouts", icon: TrendingUp, label: "Payouts" },
 ]
 

@@ -17,6 +17,7 @@ import {
   Gift,
   Star,
   ArrowRight,
+  ShoppingCart,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -301,6 +302,52 @@ export default function DashboardPage() {
                     <TrendingUp className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                     <p className="text-muted-foreground">No payouts yet</p>
                     <p className="text-sm text-muted-foreground mt-2">Purchase a package to start earning</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Recent Orders */}
+            <Card className="glass border-white/20">
+              <CardHeader>
+                <CardTitle>Recent Orders</CardTitle>
+                <CardDescription>Your latest product orders</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {dashboardData?.orders?.length > 0 ? (
+                  <div className="space-y-3 md:space-y-4">
+                    {dashboardData.orders.map((order) => (
+                      <div key={order._id} className="flex items-center justify-between p-3 md:p-4 border rounded-lg">
+                        <div className="flex items-center space-x-3 md:space-x-4 min-w-0 flex-1">
+                          {getStatusIcon(order.status)}
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-sm md:text-base">Rs {order.total.toLocaleString()}</p>
+                            <p className="text-xs md:text-sm text-muted-foreground">
+                              {order.items.length} item{order.items.length !== 1 ? 's' : ''}
+                              {order.items[0]?.productId?.name && ` - ${order.items[0].productId.name}`}
+                              {order.items.length > 1 && ' + more'}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(order.createdAt).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                        <Badge className={`${getStatusColor(order.status)} text-xs whitespace-nowrap`}>
+                          {order.status.toUpperCase()}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <ShoppingCart className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">No orders yet</p>
+                    <Link href="/shop">
+                      <Button className="mt-4 gradient-brand text-white">
+                        Start Shopping
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </Link>
                   </div>
                 )}
               </CardContent>

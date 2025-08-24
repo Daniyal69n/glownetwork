@@ -3,6 +3,7 @@ import connectDB from "../../../../../lib/mongodb.js"
 import User from "../../../../../models/User.js"
 import PackagePurchase from "../../../../../models/PackagePurchase.js"
 import Payout from "../../../../../models/Payout.js"
+import Order from "../../../../../models/Order.js"
 import { verifyToken, getTokenFromRequest } from "../../../../../lib/auth.js"
 
 export async function GET(request, { params }) {
@@ -47,6 +48,13 @@ export async function GET(request, { params }) {
       .populate("fromUserId", "name email")
       .sort({ createdAt: -1 })
       .limit(10)
+
+    // Get recent orders
+    const orders = await Order.find({ userId: id })
+      .populate("items.productId", "name image")
+      .populate("adminId", "name email")
+      .sort({ createdAt: -1 })
+      .limit(5)
 
     // Calculate payout summaries
     const payoutSummary = await Payout.aggregate([
@@ -102,6 +110,7 @@ export async function GET(request, { params }) {
       },
       packagePurchases,
       payouts,
+      orders,
       payoutStats,
       rankCounts,
       stats: {
