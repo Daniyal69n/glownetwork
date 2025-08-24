@@ -5,6 +5,7 @@ import PackagePurchase from "../../../../../models/PackagePurchase.js"
 import Payout from "../../../../../models/Payout.js"
 import Order from "../../../../../models/Order.js"
 import { verifyToken, getTokenFromRequest } from "../../../../../lib/auth.js"
+import { getNextRankRequirements } from "../../../../../lib/ranks.js"
 
 export async function GET(request, { params }) {
   try {
@@ -94,6 +95,9 @@ export async function GET(request, { params }) {
       rankCounts[stat._id] = stat.count
     })
 
+    // Get next rank requirements
+    const nextRankInfo = getNextRankRequirements(user)
+
     return NextResponse.json({
       user: {
         _id: user._id,
@@ -120,6 +124,7 @@ export async function GET(request, { params }) {
         pendingPayouts: payoutStats.pending,
         releasedPayouts: payoutStats.released,
       },
+      nextRankInfo,
     })
   } catch (error) {
     console.error("Dashboard data error:", error)

@@ -9,7 +9,7 @@ import {
   calculatePassiveIncome,
   isEligibleForPassiveIncome,
 } from "../../../../../../lib/payouts.js"
-import { checkAndPromoteUser } from "../../../../../../lib/ranks.js"
+import { checkAndPromoteUser, checkPackageBasedPromotion } from "../../../../../../lib/ranks.js"
 
 export async function POST(request, { params }) {
   try {
@@ -67,13 +67,10 @@ export async function POST(request, { params }) {
 
     // Update user's package credit
     user.packageCredit += packageAmount
-    
-    // Promote from guest to assistant if this is their first package
-    if (user.rank === "guest") {
-      user.rank = "assistant"
-    }
-    
     await user.save()
+
+    // Check for package-based rank promotion
+    const packagePromotion = await checkPackageBasedPromotion(user._id, packageAmount)
 
     // Calculate and create direct payout for the buyer
     const directPayoutAmount = calculateDirectPayout(packageAmount, user.rank)

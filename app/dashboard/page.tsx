@@ -18,6 +18,7 @@ import {
   Star,
   ArrowRight,
   ShoppingCart,
+  Target,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -146,6 +147,11 @@ export default function DashboardPage() {
                   <Badge className={getRankBadgeColor(dashboardData?.user?.rank)}>
                     {dashboardData?.user?.rank?.replace("_", " ").toUpperCase()}
                   </Badge>
+                  {dashboardData?.nextRankInfo?.nextRank && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Next: {dashboardData.nextRankInfo.nextRank.replace("_", " ").toUpperCase()}
+                    </p>
+                  )}
                 </div>
                 <Star className="w-6 h-6 md:w-8 md:h-8 text-primary" />
               </div>
@@ -306,6 +312,75 @@ export default function DashboardPage() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Rank Progress */}
+            {dashboardData?.nextRankInfo?.nextRank && (
+              <Card className="glass border-white/20">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Target className="w-5 h-5" />
+                    <span>Rank Progress</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Progress towards {dashboardData.nextRankInfo.nextRank.replace("_", " ").toUpperCase()}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span className="text-muted-foreground">Progress</span>
+                        <span className="font-medium">{Math.round(dashboardData.nextRankInfo.progress)}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-primary to-primary/70 h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${dashboardData.nextRankInfo.progress}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                    
+                    {dashboardData.nextRankInfo.requirement && (
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium">Requirements:</p>
+                        <p className="text-sm text-muted-foreground">
+                          {dashboardData.nextRankInfo.requirement.description}
+                        </p>
+                        {dashboardData.nextRankInfo.remaining > 0 && (
+                          <p className="text-sm text-primary font-medium">
+                            Remaining: Rs {dashboardData.nextRankInfo.remaining.toLocaleString()}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                    
+                    {dashboardData.nextRankInfo.nextRank === "diamond_manager" && (
+                      <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                        <p className="text-sm text-blue-800">
+                          <strong>Note:</strong> You need 5 Senior Managers in your downline to become a Diamond Manager.
+                        </p>
+                      </div>
+                    )}
+                    
+                    {dashboardData.nextRankInfo.nextRank === "global_manager" && (
+                      <div className="mt-4 p-3 bg-purple-50 rounded-lg">
+                        <p className="text-sm text-purple-800">
+                          <strong>Note:</strong> You need 5 Diamond Managers in your downline to become a Global Manager.
+                        </p>
+                      </div>
+                    )}
+                    
+                    {dashboardData.nextRankInfo.nextRank === "director" && (
+                      <div className="mt-4 p-3 bg-green-50 rounded-lg">
+                        <p className="text-sm text-green-800">
+                          <strong>Note:</strong> You need 4 Global Managers in your downline to become a Director.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Recent Orders */}
             <Card className="glass border-white/20">
