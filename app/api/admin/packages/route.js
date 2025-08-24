@@ -35,14 +35,36 @@ export async function GET(request) {
 
     // Get packages with pagination
     const packages = await PackagePurchase.find(query)
-      .populate("userId", "name email referralCode")
+      .populate("userId", "name email referralCode rank")
       .populate("adminId", "name email")
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
 
+    // Calculate summary statistics
+    const summary = await PackagePurchase.aggregate([
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 },
+          total: { $sum: "$packageAmount" },
+        },
+      },
+    ])
+
+    const summaryData = {
+      pending: { count: 0, total: 0 },
+      approved: { count: 0, total: 0 },
+      rejected: { count: 0, total: 0 },
+    }
+
+    summary.forEach((item) => {
+      summaryData[item._id] = { count: item.count, total: item.total }
+    })
+
     return NextResponse.json({
       packages,
+      summary: summaryData,
       pagination: {
         page,
         limit,

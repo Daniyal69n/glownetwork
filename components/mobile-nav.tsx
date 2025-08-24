@@ -4,7 +4,21 @@ import { useAuth } from "../lib/auth-context.js"
 import { Button } from "./ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet"
 import { Badge } from "./ui/badge"
-import { Menu, X, Home, Package, ShoppingCart, TrendingUp, User, LogOut, Sparkles, Gift } from "lucide-react"
+import { 
+  Menu, 
+  X, 
+  Home, 
+  Package, 
+  ShoppingCart, 
+  TrendingUp, 
+  User, 
+  LogOut, 
+  Sparkles, 
+  Gift,
+  LayoutDashboard,
+  Users,
+  BarChart3
+} from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -16,12 +30,24 @@ const userNavItems = [
   { href: "/payouts", icon: TrendingUp, label: "Payouts" },
 ]
 
+const adminNavItems = [
+  { href: "/admin", icon: LayoutDashboard, label: "Admin Dashboard" },
+  { href: "/admin/packages", icon: Package, label: "Package Approvals" },
+  { href: "/admin/orders", icon: ShoppingCart, label: "Order Management" },
+  { href: "/admin/payouts", icon: TrendingUp, label: "Payout Management" },
+  { href: "/admin/users", icon: Users, label: "User Management" },
+  { href: "/admin/reports", icon: BarChart3, label: "Reports & Analytics" },
+]
+
 export function MobileNav() {
   const [open, setOpen] = useState(false)
   const { user, logout } = useAuth() as any
   const pathname = usePathname()
 
   if (!user) return null
+
+  // Choose navigation items based on user role
+  const navItems = user.role === "admin" ? adminNavItems : userNavItems
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -59,13 +85,13 @@ export function MobileNav() {
               </div>
             </div>
             <div className="mt-3 text-sm text-muted-foreground">
-              <p>Credit: ₹{user.packageCredit?.toLocaleString() || 0}</p>
+              <p>Credit: Rs {user.packageCredit?.toLocaleString() || 0}</p>
             </div>
           </div>
 
           {/* Navigation */}
           <nav className="flex-1 py-6 space-y-2">
-            {userNavItems.map((item) => {
+            {navItems.map((item) => {
               const isActive = pathname === item.href
               return (
                 <Link key={item.href} href={item.href} onClick={() => setOpen(false)}>

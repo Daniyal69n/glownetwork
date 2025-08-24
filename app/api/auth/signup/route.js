@@ -7,11 +7,11 @@ export async function POST(request) {
   try {
     await connectDB()
 
-    const { name, email, password, referralCode } = await request.json()
+    const { name, email, phone, password, referralCode } = await request.json()
 
     // Validate required fields
-    if (!name || !email || !password) {
-      return NextResponse.json({ error: "Name, email, and password are required" }, { status: 400 })
+    if (!name || !email || !phone || !password) {
+      return NextResponse.json({ error: "Name, email, phone, and password are required" }, { status: 400 })
     }
 
     // Check if user already exists
@@ -38,10 +38,11 @@ export async function POST(request) {
     const newUser = await User.create({
       name: name.trim(),
       email: email.toLowerCase().trim(),
+      phone: phone.trim(),
       passwordHash,
       referredBy,
       role: "member",
-      rank: "assistant",
+      rank: "guest",
     })
 
     // Add new user to upline's direct downline
@@ -63,6 +64,7 @@ export async function POST(request) {
       _id: newUser._id,
       name: newUser.name,
       email: newUser.email,
+      phone: newUser.phone,
       role: newUser.role,
       rank: newUser.rank,
       referralCode: newUser.referralCode,

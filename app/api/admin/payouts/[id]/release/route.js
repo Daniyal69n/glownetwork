@@ -44,7 +44,7 @@ export async function POST(request, { params }) {
     await user.save()
 
     return NextResponse.json({
-      message: `Payout of ₹${payout.amount.toLocaleString()} released to ${user.name}`,
+              message: `Payout of Rs ${payout.amount.toLocaleString()} released to ${user.name}`,
       payout,
     })
   } catch (error) {

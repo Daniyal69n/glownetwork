@@ -56,7 +56,7 @@ export async function POST(request, { params }) {
     if (user.packageCredit < order.total) {
       return NextResponse.json(
         {
-          error: `User has insufficient package credit. Required: ₹${order.total.toLocaleString()}, Available: ₹${user.packageCredit.toLocaleString()}`,
+          error: `User has insufficient package credit. Required: Rs ${order.total.toLocaleString()}, Available: Rs ${user.packageCredit.toLocaleString()}`,
         },
         { status: 400 },
       )
@@ -92,7 +92,7 @@ export async function POST(request, { params }) {
     }
 
     return NextResponse.json({
-      message: `Order approved - ₹${order.total.toLocaleString()} deducted from user's package credit`,
+              message: `Order approved - Rs ${order.total.toLocaleString()} deducted from user's package credit`,
       order,
     })
   } catch (error) {

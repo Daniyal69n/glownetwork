@@ -2,7 +2,6 @@
 import { useAuth } from "../lib/auth-context.js"
 import { Button } from "./ui/button"
 import { Badge } from "./ui/badge"
-import { MobileNav } from "./mobile-nav"
 import { Sparkles, User } from "lucide-react"
 import Link from "next/link"
 
@@ -13,8 +12,9 @@ export function SiteHeader() {
     <header className="sticky top-0 z-50 w-full border-b border-white/20 bg-white/80 backdrop-blur-md">
       <div className="container mx-auto px-4 py-3">
         <nav className="flex items-center justify-between">
-          {/* Logo */}
-          <Link href={isAuthenticated ? "/dashboard" : "/"} className="flex items-center space-x-2">
+          {/* Logo - Centered */}
+          <div className="flex-1"></div>
+          <Link href={isAuthenticated ? (user?.role === "admin" ? "/admin" : "/dashboard") : "/"} className="flex items-center space-x-2">
             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-primary" />
             </div>
@@ -22,33 +22,10 @@ export function SiteHeader() {
               GLOW NETWORK
             </span>
           </Link>
-
-          {/* Desktop Navigation */}
-          {isAuthenticated ? (
-            <div className="hidden md:flex items-center space-x-6">
-              <Link href="/dashboard">
-                <Button variant="ghost" size="sm">
-                  Dashboard
-                </Button>
-              </Link>
-              <Link href="/packages">
-                <Button variant="ghost" size="sm">
-                  Packages
-                </Button>
-              </Link>
-              <Link href="/shop">
-                <Button variant="ghost" size="sm">
-                  Shop
-                </Button>
-              </Link>
-              <Link href="/payouts">
-                <Button variant="ghost" size="sm">
-                  Payouts
-                </Button>
-              </Link>
-
-              {/* User Info */}
-              <div className="flex items-center space-x-3 pl-4 border-l border-white/20">
+          <div className="flex-1 flex justify-end">
+            {/* User Info - Only show if authenticated */}
+            {isAuthenticated && (
+              <div className="flex items-center space-x-3">
                 <div className="flex items-center space-x-2">
                   <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                     <User className="w-4 h-4 text-primary" />
@@ -60,39 +37,12 @@ export function SiteHeader() {
                     </Badge>
                   </div>
                 </div>
-                <Button variant="outline" size="sm" onClick={logout} className="ml-4">
+                <Button variant="outline" size="sm" onClick={logout}>
                   Logout
                 </Button>
               </div>
-            </div>
-          ) : (
-            <div className="hidden md:flex items-center space-x-4">
-              <Link href="/login">
-                <Button variant="ghost">Sign In</Button>
-              </Link>
-              <Link href="/signup">
-                <Button className="gradient-brand text-white">Get Started</Button>
-              </Link>
-            </div>
-          )}
-
-          {/* Mobile Navigation */}
-          {isAuthenticated ? (
-            <MobileNav />
-          ) : (
-            <div className="flex md:hidden items-center space-x-2">
-              <Link href="/login">
-                <Button variant="ghost" size="sm">
-                  Sign In
-                </Button>
-              </Link>
-              <Link href="/signup">
-                <Button size="sm" className="gradient-brand text-white">
-                  Join
-                </Button>
-              </Link>
-            </div>
-          )}
+            )}
+          </div>
         </nav>
       </div>
     </header>

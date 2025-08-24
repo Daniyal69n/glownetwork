@@ -1,6 +1,26 @@
 "use client"
 import { useState, useEffect } from "react"
 import { useAuth } from "../../../lib/auth-context.js"
+
+interface PackagePurchase {
+  _id: string
+  userId: {
+    name: string
+    email: string
+    rank: string
+  }
+  packageAmount: number
+  status: "pending" | "approved" | "rejected"
+  createdAt: string
+  approvedAt?: string
+  rejectionReason?: string
+}
+
+interface Summary {
+  pending: { count: number; total: number }
+  approved: { count: number; total: number }
+  rejected: { count: number; total: number }
+}
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card"
 import { Badge } from "../../../components/ui/badge"
 import { Button } from "../../../components/ui/button"
@@ -18,17 +38,21 @@ import {
 import { Package, Clock, CheckCircle, XCircle, Calendar, User } from "lucide-react"
 
 export default function AdminPackagesPage() {
-  const [packages, setPackages] = useState([])
-  const [summary, setSummary] = useState({})
+  const [packages, setPackages] = useState<PackagePurchase[]>([])
+  const [summary, setSummary] = useState<Summary>({
+    pending: { count: 0, total: 0 },
+    approved: { count: 0, total: 0 },
+    rejected: { count: 0, total: 0 },
+  })
   const [loading, setLoading] = useState(true)
-  const [processing, setProcessing] = useState(null)
+  const [processing, setProcessing] = useState<string | null>(null)
   const [error, setError] = useState("")
   const [message, setMessage] = useState("")
   const [activeTab, setActiveTab] = useState("pending")
   const [rejectionReason, setRejectionReason] = useState("")
-  const [selectedPackage, setSelectedPackage] = useState(null)
+  const [selectedPackage, setSelectedPackage] = useState<PackagePurchase | null>(null)
 
-  const { user, token } = useAuth()
+  const { user, token } = useAuth() as { user: any; token: string }
 
   useEffect(() => {
     if (user?.role === "admin" && token) {
@@ -47,7 +71,7 @@ export default function AdminPackagesPage() {
       const data = await response.json()
 
       if (response.ok) {
-        setPackages(data.purchases || [])
+        setPackages(data.packages || [])
         setSummary(data.summary || {})
       } else {
         setError(data.error)
@@ -59,7 +83,7 @@ export default function AdminPackagesPage() {
     }
   }
 
-  const handleApprovePackage = async (packageId) => {
+  const handleApprovePackage = async (packageId: string) => {
     setProcessing(packageId)
     setError("")
     setMessage("")
@@ -89,7 +113,7 @@ export default function AdminPackagesPage() {
     }
   }
 
-  const handleRejectPackage = async (packageId) => {
+  const handleRejectPackage = async (packageId: string) => {
     if (!rejectionReason.trim()) {
       setError("Please provide a rejection reason")
       return
@@ -129,7 +153,7 @@ export default function AdminPackagesPage() {
     }
   }
 
-  const getStatusIcon = (status) => {
+  const getStatusIcon = (status: string) => {
     switch (status) {
       case "pending":
         return <Clock className="w-4 h-4 text-yellow-500" />
@@ -142,7 +166,7 @@ export default function AdminPackagesPage() {
     }
   }
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
         return "bg-yellow-100 text-yellow-800"
@@ -192,7 +216,7 @@ export default function AdminPackagesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Pending Packages</p>
-                <p className="text-2xl font-bold text-yellow-600">₹{summary?.pending?.total?.toLocaleString() || 0}</p>
+                <p className="text-2xl font-bold text-yellow-600">Rs {summary?.pending?.total?.toLocaleString() || 0}</p>
                 <p className="text-xs text-muted-foreground">{summary?.pending?.count || 0} purchases</p>
               </div>
               <Clock className="w-8 h-8 text-yellow-500" />
@@ -205,7 +229,7 @@ export default function AdminPackagesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Approved Packages</p>
-                <p className="text-2xl font-bold text-green-600">₹{summary?.approved?.total?.toLocaleString() || 0}</p>
+                <p className="text-2xl font-bold text-green-600">Rs {summary?.approved?.total?.toLocaleString() || 0}</p>
                 <p className="text-xs text-muted-foreground">{summary?.approved?.count || 0} purchases</p>
               </div>
               <CheckCircle className="w-8 h-8 text-green-500" />
@@ -219,7 +243,7 @@ export default function AdminPackagesPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Total Packages</p>
                 <p className="text-2xl font-bold text-primary">
-                  ₹
+                  Rs
                   {(
                     (summary?.pending?.total || 0) +
                     (summary?.approved?.total || 0) +
@@ -253,7 +277,7 @@ export default function AdminPackagesPage() {
             </TabsList>
           </Tabs>
 
-          {packages.length > 0 ? (
+          {packages && packages.length > 0 ? (
             <div className="space-y-4">
               {packages.map((pkg) => (
                 <div key={pkg._id} className="flex items-center justify-between p-4 border rounded-lg">
@@ -261,7 +285,7 @@ export default function AdminPackagesPage() {
                     {getStatusIcon(pkg.status)}
                     <div>
                       <div className="flex items-center space-x-2">
-                        <p className="font-medium">₹{pkg.packageAmount.toLocaleString()}</p>
+                        <p className="font-medium">Rs {pkg.packageAmount.toLocaleString()}</p>
                         <Badge variant="outline">
                           {pkg.packageAmount === 20000 ? "Basic" : pkg.packageAmount === 50000 ? "Premium" : "Elite"}
                         </Badge>
@@ -271,7 +295,7 @@ export default function AdminPackagesPage() {
                         {pkg.userId.name} ({pkg.userId.email})
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        Rank: {pkg.userId.rank.replace("_", " ").toUpperCase()}
+                        Rank: {pkg.userId.rank ? pkg.userId.rank.replace("_", " ").toUpperCase() : "N/A"}
                       </p>
                       <div className="flex items-center space-x-4 text-xs text-muted-foreground mt-1">
                         <span className="flex items-center">
@@ -307,7 +331,7 @@ export default function AdminPackagesPage() {
                             <DialogHeader>
                               <DialogTitle>Reject Package Purchase</DialogTitle>
                               <DialogDescription>
-                                Provide a reason for rejecting this ₹{pkg.packageAmount.toLocaleString()} package
+                                Provide a reason for rejecting this Rs {pkg.packageAmount.toLocaleString()} package
                                 purchase by {pkg.userId.name}.
                               </DialogDescription>
                             </DialogHeader>

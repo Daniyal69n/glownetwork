@@ -164,12 +164,12 @@ export default function PackagesPage() {
                 <CardTitle className="text-xl md:text-2xl">{pkg.name}</CardTitle>
                 <CardDescription className="text-sm">{pkg.description}</CardDescription>
                 <div className="mt-4">
-                  <div className="text-2xl md:text-3xl font-bold text-primary">₹{pkg.amount.toLocaleString()}</div>
-                  {user && (
-                    <div className="text-sm text-muted-foreground mt-1">
-                      Direct payout: ₹{calculateDirectPayout(pkg.amount).toLocaleString()}
-                    </div>
-                  )}
+                                  <div className="text-2xl md:text-3xl font-bold text-primary">Rs {pkg.amount.toLocaleString()}</div>
+                {user && (
+                  <div className="text-sm text-muted-foreground mt-1">
+                    Direct payout: Rs {calculateDirectPayout(pkg.amount).toLocaleString()}
+                  </div>
+                )}
                 </div>
               </CardHeader>
 

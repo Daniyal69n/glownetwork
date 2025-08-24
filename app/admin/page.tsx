@@ -151,7 +151,7 @@ export default function AdminDashboardPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Package Sales</p>
                 <p className="text-2xl font-bold">
-                  ₹{dashboardData?.reports?.overallStats?.totalPackageSales?.toLocaleString() || 0}
+                  Rs {dashboardData?.reports?.overallStats?.totalPackageSales?.toLocaleString() || 0}
                 </p>
                 <p className="text-xs text-muted-foreground">This month</p>
               </div>
@@ -166,7 +166,7 @@ export default function AdminDashboardPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Pending Payouts</p>
                 <p className="text-2xl font-bold text-yellow-600">
-                  ₹{dashboardData?.payouts?.summary?.pending?.total?.toLocaleString() || 0}
+                  Rs {dashboardData?.payouts?.summary?.pending?.total?.toLocaleString() || 0}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {dashboardData?.payouts?.summary?.pending?.count || 0} transactions
@@ -183,7 +183,7 @@ export default function AdminDashboardPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Total Payouts</p>
                 <p className="text-2xl font-bold text-green-600">
-                  ₹{dashboardData?.reports?.overallStats?.totalPayouts?.toLocaleString() || 0}
+                  Rs {dashboardData?.reports?.overallStats?.totalPayouts?.toLocaleString() || 0}
                 </p>
                 <p className="text-xs text-muted-foreground">All time</p>
               </div>
@@ -253,7 +253,7 @@ export default function AdminDashboardPage() {
                     <div className="flex items-center space-x-3">
                       {getStatusIcon(purchase.status)}
                       <div>
-                        <p className="font-medium">₹{purchase.packageAmount.toLocaleString()}</p>
+                        <p className="font-medium">Rs {purchase.packageAmount.toLocaleString()}</p>
                         <p className="text-sm text-muted-foreground">{purchase.userId.name}</p>
                         <p className="text-xs text-muted-foreground">
                           {new Date(purchase.createdAt).toLocaleDateString()}
@@ -296,7 +296,7 @@ export default function AdminDashboardPage() {
                     <div className="flex items-center space-x-3">
                       {getStatusIcon(order.status)}
                       <div>
-                        <p className="font-medium">₹{order.totalAmount.toLocaleString()}</p>
+                        <p className="font-medium">Rs {order.totalAmount.toLocaleString()}</p>
                         <p className="text-sm text-muted-foreground">{order.userId.name}</p>
                         <p className="text-xs text-muted-foreground">
                           {order.items.length} item{order.items.length > 1 ? "s" : ""}
@@ -344,7 +344,7 @@ export default function AdminDashboardPage() {
                       <ArrowDownRight className="w-4 h-4 text-blue-500" />
                     )}
                     <div>
-                      <p className="font-medium">₹{payout.amount.toLocaleString()}</p>
+                      <p className="font-medium">Rs {payout.amount.toLocaleString()}</p>
                       <p className="text-sm text-muted-foreground">{payout.userId.name}</p>
                       <p className="text-xs text-muted-foreground">
                         {payout.type === "direct" ? "Direct Payout" : `Passive Income (Level ${payout.level})`}

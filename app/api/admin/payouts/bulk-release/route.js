@@ -72,7 +72,7 @@ export async function POST(request) {
     }
 
     return NextResponse.json({
-      message: `Successfully released ${payouts.length} payouts totaling ₹${totalReleased.toLocaleString()}`,
+              message: `Successfully released ${payouts.length} payouts totaling Rs ${totalReleased.toLocaleString()}`,
       releasedCount: payouts.length,
       totalAmount: totalReleased,
       affectedUsers: userUpdates.size,

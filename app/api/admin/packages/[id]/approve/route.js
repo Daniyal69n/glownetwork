@@ -67,6 +67,12 @@ export async function POST(request, { params }) {
 
     // Update user's package credit
     user.packageCredit += packageAmount
+    
+    // Promote from guest to assistant if this is their first package
+    if (user.rank === "guest") {
+      user.rank = "assistant"
+    }
+    
     await user.save()
 
     // Calculate and create direct payout for the buyer

@@ -201,7 +201,7 @@ export default function AdminOrdersPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Pending Orders</p>
-                <p className="text-2xl font-bold text-yellow-600">₹{summary?.pending?.total?.toLocaleString() || 0}</p>
+                <p className="text-2xl font-bold text-yellow-600">Rs {summary?.pending?.total?.toLocaleString() || 0}</p>
                 <p className="text-xs text-muted-foreground">{summary?.pending?.count || 0} orders</p>
               </div>
               <Clock className="w-8 h-8 text-yellow-500" />
@@ -214,7 +214,7 @@ export default function AdminOrdersPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Approved Orders</p>
-                <p className="text-2xl font-bold text-green-600">₹{summary?.approved?.total?.toLocaleString() || 0}</p>
+                <p className="text-2xl font-bold text-green-600">Rs {summary?.approved?.total?.toLocaleString() || 0}</p>
                 <p className="text-xs text-muted-foreground">{summary?.approved?.count || 0} orders</p>
               </div>
               <CheckCircle className="w-8 h-8 text-green-500" />
@@ -227,7 +227,7 @@ export default function AdminOrdersPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Dispatched Orders</p>
-                <p className="text-2xl font-bold text-blue-600">₹{summary?.dispatched?.total?.toLocaleString() || 0}</p>
+                <p className="text-2xl font-bold text-blue-600">Rs {summary?.dispatched?.total?.toLocaleString() || 0}</p>
                 <p className="text-xs text-muted-foreground">{summary?.dispatched?.count || 0} orders</p>
               </div>
               <ArrowUpRight className="w-8 h-8 text-blue-500" />
@@ -241,7 +241,7 @@ export default function AdminOrdersPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Total Orders</p>
                 <p className="text-2xl font-bold text-primary">
-                  ₹
+                  Rs
                   {(
                     (summary?.pending?.total || 0) +
                     (summary?.approved?.total || 0) +
@@ -288,7 +288,7 @@ export default function AdminOrdersPage() {
                     {getStatusIcon(order.status)}
                     <div>
                       <div className="flex items-center space-x-2">
-                        <p className="font-medium">₹{order.totalAmount.toLocaleString()}</p>
+                        <p className="font-medium">Rs {order.totalAmount.toLocaleString()}</p>
                         <Badge variant="outline">
                           {order.items.length} item{order.items.length > 1 ? "s" : ""}
                         </Badge>

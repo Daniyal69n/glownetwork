@@ -121,7 +121,7 @@ export default function OrdersPage() {
                         <span>Order #{order._id.slice(-8)}</span>
                       </CardTitle>
                       <CardDescription>
-                        Placed on {new Date(order.createdAt).toLocaleDateString()} • Total: ₹
+                        Placed on {new Date(order.createdAt).toLocaleDateString()} • Total: Rs
                         {order.total.toLocaleString()}
                       </CardDescription>
                     </div>
@@ -141,10 +141,10 @@ export default function OrdersPage() {
                         <div className="flex-1">
                           <p className="font-medium">{item.productId.title}</p>
                           <p className="text-sm text-muted-foreground">
-                            {item.productId.sku} • Qty: {item.quantity} • ₹{item.price.toLocaleString()} each
+                            {item.productId.sku} • Qty: {item.quantity} • Rs {item.price.toLocaleString()} each
                           </p>
                         </div>
-                        <p className="font-semibold">₹{(item.price * item.quantity).toLocaleString()}</p>
+                        <p className="font-semibold">Rs {(item.price * item.quantity).toLocaleString()}</p>
                       </div>
                     ))}
                   </div>

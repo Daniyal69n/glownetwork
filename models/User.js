@@ -14,6 +14,11 @@ const UserSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+    phone: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     passwordHash: {
       type: String,
       required: true,
@@ -25,8 +30,8 @@ const UserSchema = new mongoose.Schema(
     },
     rank: {
       type: String,
-      enum: ["assistant", "manager", "senior_manager", "diamond_manager", "global_manager", "director"],
-      default: "assistant",
+      enum: ["guest", "assistant", "manager", "senior_manager", "diamond_manager", "global_manager", "director"],
+      default: "guest",
     },
     referralCode: {
       type: String,

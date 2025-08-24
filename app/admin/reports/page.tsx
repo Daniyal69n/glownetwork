@@ -67,7 +67,7 @@ export default function AdminReportsPage() {
   }
 
   const formatCurrency = (amount) => {
-    return `₹${amount?.toLocaleString() || 0}`
+    return `Rs ${amount?.toLocaleString() || 0}`
   }
 
   if (loading) {

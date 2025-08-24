@@ -99,7 +99,7 @@ export default function ShopPage() {
     const cartTotal = getCartTotal()
     if (user.packageCredit < cartTotal) {
       setError(
-        `Insufficient package credit. Required: ₹${cartTotal.toLocaleString()}, Available: ₹${user.packageCredit.toLocaleString()}`,
+        `Insufficient package credit. Required: Rs ${cartTotal.toLocaleString()}, Available: Rs ${user.packageCredit.toLocaleString()}`,
       )
       return
     }
@@ -157,7 +157,7 @@ export default function ShopPage() {
             {user && (
               <p className="text-sm text-muted-foreground mt-2">
                 Package Credit:{" "}
-                <span className="font-semibold text-primary">₹{user.packageCredit?.toLocaleString() || 0}</span>
+                <span className="font-semibold text-primary">Rs {user.packageCredit?.toLocaleString() || 0}</span>
               </p>
             )}
           </div>
@@ -196,7 +196,7 @@ export default function ShopPage() {
                         />
                         <div>
                           <h4 className="font-medium">{item.product.title}</h4>
-                          <p className="text-sm text-muted-foreground">₹{item.product.price.toLocaleString()}</p>
+                          <p className="text-sm text-muted-foreground">Rs {item.product.price.toLocaleString()}</p>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -224,10 +224,10 @@ export default function ShopPage() {
 
                   <div className="border-t pt-4">
                     <div className="flex justify-between items-center mb-4">
-                      <span className="text-lg font-semibold">Total: ₹{getCartTotal().toLocaleString()}</span>
+                      <span className="text-lg font-semibold">Total: Rs {getCartTotal().toLocaleString()}</span>
                       {user && (
                         <span className="text-sm text-muted-foreground">
-                          Remaining Credit: ₹{(user.packageCredit - getCartTotal()).toLocaleString()}
+                          Remaining Credit: Rs {(user.packageCredit - getCartTotal()).toLocaleString()}
                         </span>
                       )}
                     </div>
@@ -319,7 +319,7 @@ export default function ShopPage() {
                   <CardDescription className="line-clamp-2 mb-4">{product.description}</CardDescription>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-2xl font-bold text-primary">₹{product.price.toLocaleString()}</p>
+                      <p className="text-2xl font-bold text-primary">Rs {product.price.toLocaleString()}</p>
                       <p className="text-sm text-muted-foreground">Stock: {product.stock}</p>
                     </div>
                     <Button

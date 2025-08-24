@@ -57,6 +57,8 @@ export default function AdminUsersPage() {
 
   const getRankBadgeColor = (rank) => {
     switch (rank) {
+      case "guest":
+        return "bg-gray-100 text-gray-600"
       case "assistant":
         return "bg-gray-100 text-gray-800"
       case "manager":
@@ -77,7 +79,8 @@ export default function AdminUsersPage() {
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase())
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (user.phone && user.phone.includes(searchTerm))
     const matchesRank = rankFilter === "all" || user.rank === rankFilter
     return matchesSearch && matchesRank
   })
@@ -164,7 +167,7 @@ export default function AdminUsersPage() {
                 </Badge>
                 <p className="text-2xl font-bold mt-2">{rank.count}</p>
                 <p className="text-xs text-muted-foreground">
-                  Avg: ₹{Math.round(rank.avgIncome || 0).toLocaleString()}
+                  Avg: Rs {Math.round(rank.avgIncome || 0).toLocaleString()}
                 </p>
               </div>
             ))}
@@ -196,6 +199,7 @@ export default function AdminUsersPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Ranks</SelectItem>
+                  <SelectItem value="guest">Guest</SelectItem>
                   <SelectItem value="assistant">Assistant</SelectItem>
                   <SelectItem value="manager">Manager</SelectItem>
                   <SelectItem value="senior_manager">Senior Manager</SelectItem>
@@ -219,24 +223,25 @@ export default function AdminUsersPage() {
                     <div>
                       <p className="font-medium">{user.name}</p>
                       <p className="text-sm text-muted-foreground">{user.email}</p>
+                      {user.phone && <p className="text-sm text-muted-foreground">{user.phone}</p>}
                       <div className="flex items-center space-x-4 mt-1">
                         <Badge className={getRankBadgeColor(user.rank)} variant="secondary">
                           {user.rank.replace("_", " ").toUpperCase()}
                         </Badge>
                         <span className="text-xs text-muted-foreground">
-                          Total: ₹{user.totalIncome?.toLocaleString() || 0}
+                          Total: Rs {user.totalIncome?.toLocaleString() || 0}
                         </span>
                         <span className="text-xs text-muted-foreground">
-                          Released: ₹{user.releasedIncome?.toLocaleString() || 0}
+                          Released: Rs {user.releasedIncome?.toLocaleString() || 0}
                         </span>
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-lg font-bold text-primary">₹{user.totalIncome?.toLocaleString() || 0}</p>
+                    <p className="text-lg font-bold text-primary">Rs {user.totalIncome?.toLocaleString() || 0}</p>
                     <p className="text-xs text-muted-foreground">Total Earnings</p>
                     {user.pendingIncome > 0 && (
-                      <p className="text-xs text-yellow-600">₹{user.pendingIncome.toLocaleString()} pending</p>
+                                              <p className="text-xs text-yellow-600">Rs {user.pendingIncome.toLocaleString()} pending</p>
                     )}
                   </div>
                 </div>

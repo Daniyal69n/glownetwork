@@ -110,7 +110,7 @@ export default function PayoutsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Pending Payouts</p>
-                  <p className="text-2xl font-bold text-yellow-600">₹{stats?.pending?.toLocaleString() || 0}</p>
+                  <p className="text-2xl font-bold text-yellow-600">Rs {stats?.pending?.toLocaleString() || 0}</p>
                 </div>
                 <Clock className="w-8 h-8 text-yellow-500" />
               </div>
@@ -122,7 +122,7 @@ export default function PayoutsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Released Payouts</p>
-                  <p className="text-2xl font-bold text-green-600">₹{stats?.released?.toLocaleString() || 0}</p>
+                  <p className="text-2xl font-bold text-green-600">Rs {stats?.released?.toLocaleString() || 0}</p>
                 </div>
                 <CheckCircle className="w-8 h-8 text-green-500" />
               </div>
@@ -135,7 +135,7 @@ export default function PayoutsPage() {
                 <div>
                   <p className="text-sm text-muted-foreground">Total Earnings</p>
                   <p className="text-2xl font-bold text-primary">
-                    ₹{((stats?.pending || 0) + (stats?.released || 0) + (stats?.paid || 0)).toLocaleString()}
+                    Rs {((stats?.pending || 0) + (stats?.released || 0) + (stats?.paid || 0)).toLocaleString()}
                   </p>
                 </div>
                 <TrendingUp className="w-8 h-8 text-primary" />
@@ -168,7 +168,7 @@ export default function PayoutsPage() {
                       {getStatusIcon(payout.status)}
                       <div>
                         <div className="flex items-center space-x-2">
-                          <p className="font-medium">₹{payout.amount.toLocaleString()}</p>
+                          <p className="font-medium">Rs {payout.amount.toLocaleString()}</p>
                           {payout.type === "direct" ? (
                             <ArrowUpRight className="w-4 h-4 text-green-500" />
                           ) : (

@@ -7,11 +7,12 @@ import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card"
 import { Alert, AlertDescription } from "../../components/ui/alert"
-import { Eye, EyeOff, Mail, Lock, User, Gift, Sparkles } from "lucide-react"
+import { Eye, EyeOff, Mail, Lock, User, Gift, Sparkles, Phone } from "lucide-react"
 
 export default function SignupPage() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
+  const [phone, setPhone] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [referralCode, setReferralCode] = useState("")
@@ -63,7 +64,7 @@ export default function SignupPage() {
       return
     }
 
-    const result = await signup(name, email, password, referralCode)
+    const result = await signup(name, email, phone, password, referralCode)
 
     if (result.success) {
       if (result.referredBy) {
@@ -142,6 +143,24 @@ export default function SignupPage() {
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="phone" className="text-sm font-medium">
+                  Phone Number
+                </label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="Enter your phone number"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
                     className="pl-10"
                     required
                   />

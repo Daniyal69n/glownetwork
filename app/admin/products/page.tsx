@@ -215,7 +215,7 @@ export default function AdminProductsPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Total Value</p>
                 <p className="text-2xl font-bold text-green-600">
-                  ₹{products.reduce((sum, p) => sum + (p.price * p.stock), 0).toLocaleString()}
+                  Rs {products.reduce((sum, p) => sum + (p.price * p.stock), 0).toLocaleString()}
                 </p>
                 <p className="text-xs text-muted-foreground">Inventory value</p>
               </div>
@@ -296,7 +296,7 @@ export default function AdminProductsPage() {
                       <div className="flex items-center space-x-4 text-xs text-muted-foreground mt-1">
                         <span className="flex items-center">
                           <DollarSign className="w-3 h-3 mr-1" />
-                          ₹{product.price?.toLocaleString()}
+                          Rs {product.price?.toLocaleString()}
                         </span>
                         <span className="flex items-center">
                           <Package className="w-3 h-3 mr-1" />
@@ -439,7 +439,7 @@ function ProductForm({ product, onSubmit, onCancel }) {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="price">Price (₹)</Label>
+                          <Label htmlFor="price">Price (Rs)</Label>
           <Input
             id="price"
             name="price"

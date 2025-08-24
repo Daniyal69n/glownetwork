@@ -180,7 +180,7 @@ export default function AdminPayoutsPage() {
                 <div>
                   <p className="text-sm text-muted-foreground">Pending Payouts</p>
                   <p className="text-2xl font-bold text-yellow-600">
-                    ₹{summary?.pending?.total?.toLocaleString() || 0}
+                    Rs {summary?.pending?.total?.toLocaleString() || 0}
                   </p>
                   <p className="text-xs text-muted-foreground">{summary?.pending?.count || 0} transactions</p>
                 </div>
@@ -195,7 +195,7 @@ export default function AdminPayoutsPage() {
                 <div>
                   <p className="text-sm text-muted-foreground">Released Payouts</p>
                   <p className="text-2xl font-bold text-green-600">
-                    ₹{summary?.released?.total?.toLocaleString() || 0}
+                    Rs {summary?.released?.total?.toLocaleString() || 0}
                   </p>
                   <p className="text-xs text-muted-foreground">{summary?.released?.count || 0} transactions</p>
                 </div>
@@ -210,7 +210,7 @@ export default function AdminPayoutsPage() {
                 <div>
                   <p className="text-sm text-muted-foreground">Total Payouts</p>
                   <p className="text-2xl font-bold text-primary">
-                    ₹
+                    Rs
                     {(
                       (summary?.pending?.total || 0) +
                       (summary?.released?.total || 0) +
@@ -271,7 +271,7 @@ export default function AdminPayoutsPage() {
                       )}
                       <div>
                         <div className="flex items-center space-x-2">
-                          <p className="font-medium">₹{payout.amount.toLocaleString()}</p>
+                          <p className="font-medium">Rs {payout.amount.toLocaleString()}</p>
                           {payout.type === "direct" ? (
                             <ArrowUpRight className="w-4 h-4 text-green-500" />
                           ) : (

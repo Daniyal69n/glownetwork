@@ -157,7 +157,7 @@ export default function DashboardPage() {
                 <div>
                   <p className="text-sm text-muted-foreground">Package Credit</p>
                   <p className="text-xl md:text-2xl font-bold">
-                    ₹{dashboardData?.user?.packageCredit?.toLocaleString() || 0}
+                    Rs {dashboardData?.user?.packageCredit?.toLocaleString() || 0}
                   </p>
                 </div>
                 <Package className="w-6 h-6 md:w-8 md:h-8 text-primary" />
@@ -171,7 +171,7 @@ export default function DashboardPage() {
                 <div>
                   <p className="text-sm text-muted-foreground">Pending Payouts</p>
                   <p className="text-xl md:text-2xl font-bold text-yellow-600">
-                    ₹{dashboardData?.payoutStats?.pending?.toLocaleString() || 0}
+                    Rs {dashboardData?.payoutStats?.pending?.toLocaleString() || 0}
                   </p>
                 </div>
                 <Clock className="w-6 h-6 md:w-8 md:h-8 text-yellow-500" />
@@ -185,7 +185,7 @@ export default function DashboardPage() {
                 <div>
                   <p className="text-sm text-muted-foreground">Released Payouts</p>
                   <p className="text-xl md:text-2xl font-bold text-green-600">
-                    ₹{dashboardData?.payoutStats?.released?.toLocaleString() || 0}
+                    Rs {dashboardData?.payoutStats?.released?.toLocaleString() || 0}
                   </p>
                 </div>
                 <TrendingUp className="w-6 h-6 md:w-8 md:h-8 text-green-500" />
@@ -239,7 +239,7 @@ export default function DashboardPage() {
                           {getStatusIcon(purchase.status)}
                           <div className="min-w-0 flex-1">
                             <p className="font-medium text-sm md:text-base">
-                              ₹{purchase.packageAmount.toLocaleString()}
+                              Rs {purchase.packageAmount.toLocaleString()}
                             </p>
                             <p className="text-xs md:text-sm text-muted-foreground truncate">
                               {new Date(purchase.createdAt).toLocaleDateString()}
@@ -281,7 +281,7 @@ export default function DashboardPage() {
                         <div className="flex items-center space-x-3 md:space-x-4 min-w-0 flex-1">
                           {getStatusIcon(payout.status)}
                           <div className="min-w-0 flex-1">
-                            <p className="font-medium text-sm md:text-base">₹{payout.amount.toLocaleString()}</p>
+                            <p className="font-medium text-sm md:text-base">Rs {payout.amount.toLocaleString()}</p>
                             <p className="text-xs md:text-sm text-muted-foreground">
                               {payout.type === "direct" ? "Direct Payout" : `Passive Income (Level ${payout.level})`}
                             </p>

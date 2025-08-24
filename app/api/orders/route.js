@@ -67,7 +67,7 @@ export async function POST(request) {
     if (user.packageCredit < orderTotal) {
       return NextResponse.json(
         {
-          error: `Insufficient package credit. Required: ₹${orderTotal.toLocaleString()}, Available: ₹${user.packageCredit.toLocaleString()}`,
+          error: `Insufficient package credit. Required: Rs ${orderTotal.toLocaleString()}, Available: Rs ${user.packageCredit.toLocaleString()}`,
         },
         { status: 400 },
       )
