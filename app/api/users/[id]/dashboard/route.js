@@ -5,7 +5,7 @@ import PackagePurchase from "../../../../../models/PackagePurchase.js"
 import Payout from "../../../../../models/Payout.js"
 import Order from "../../../../../models/Order.js"
 import { verifyToken, getTokenFromRequest } from "../../../../../lib/auth.js"
-import { getNextRankRequirements } from "../../../../../lib/ranks.js"
+import { getNextRankRequirements, getDownlineRankCounts, checkAndPromoteUser } from "../../../../../lib/ranks.js"
 
 export async function GET(request, { params }) {
   try {
@@ -29,7 +29,10 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 })
     }
 
-    // Get user data
+    // Re-evaluate promotions so rank reflects latest downline before rendering
+    await checkAndPromoteUser(id)
+
+    // Get user data (after possible promotion)
     const user = await User.findById(id)
       .populate("directDownline", "name email rank")
       .populate("referredBy", "name email referralCode")
@@ -79,24 +82,56 @@ export async function GET(request, { params }) {
       payoutStats[stat._id] = stat.total
     })
 
-    // Get downline count by rank
-    const downlineStats = await User.aggregate([
-      { $match: { referredBy: user._id } },
-      {
-        $group: {
-          _id: "$rank",
-          count: { $sum: 1 },
-        },
-      },
-    ])
-
-    const rankCounts = {}
-    downlineStats.forEach((stat) => {
-      rankCounts[stat._id] = stat.count
-    })
+    // Get downline count by rank (entire tree, not only direct)
+    const rankCounts = await getDownlineRankCounts(user._id)
 
     // Get next rank requirements
     const nextRankInfo = getNextRankRequirements(user)
+
+    // Compute progress for downline-based ranks
+    if (nextRankInfo?.nextRank === "diamond_manager") {
+      const have = rankCounts.senior_manager || 0
+      const need = 5
+      nextRankInfo.progress = Math.min((have / need) * 100, 100)
+      nextRankInfo.remaining = Math.max(need - have, 0)
+    } else if (nextRankInfo?.nextRank === "global_manager") {
+      const have = rankCounts.diamond_manager || 0
+      const need = 5
+      nextRankInfo.progress = Math.min((have / need) * 100, 100)
+      nextRankInfo.remaining = Math.max(need - have, 0)
+    } else if (nextRankInfo?.nextRank === "director") {
+      const have = rankCounts.global_manager || 0
+      const need = 4
+      nextRankInfo.progress = Math.min((have / need) * 100, 100)
+      nextRankInfo.remaining = Math.max(need - have, 0)
+    }
+
+    // Safety: if API ever returns progress for the same rank the user already has
+    // (e.g., just promoted but stale computation), force next target and reset progress.
+    if (nextRankInfo?.nextRank === user.rank) {
+      const nextMap = {
+        guest: "assistant",
+        assistant: "manager",
+        manager: "senior_manager",
+        senior_manager: "diamond_manager",
+        diamond_manager: "global_manager",
+        global_manager: "director",
+        director: null,
+      }
+      const forcedNext = nextMap[user.rank]
+      nextRankInfo.nextRank = forcedNext
+      // Reset progress for new target
+      if (forcedNext === "global_manager") {
+        nextRankInfo.progress = Math.min(((rankCounts.diamond_manager || 0) / 5) * 100, 100)
+        nextRankInfo.remaining = Math.max(5 - (rankCounts.diamond_manager || 0), 0)
+      } else if (forcedNext === "director") {
+        nextRankInfo.progress = Math.min(((rankCounts.global_manager || 0) / 4) * 100, 100)
+        nextRankInfo.remaining = Math.max(4 - (rankCounts.global_manager || 0), 0)
+      } else {
+        nextRankInfo.progress = 0
+        nextRankInfo.remaining = 0
+      }
+    }
 
     return NextResponse.json({
       user: {
@@ -118,7 +153,7 @@ export async function GET(request, { params }) {
       payoutStats,
       rankCounts,
       stats: {
-        totalDownline: user.directDownline.length,
+        totalDownline: Object.values(rankCounts).reduce((a, b) => a + b, 0),
         packageCredit: user.packageCredit,
         totalEarnings: user.totalIncome,
         pendingPayouts: payoutStats.pending,

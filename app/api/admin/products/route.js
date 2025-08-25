@@ -63,6 +63,11 @@ export async function POST(request) {
 
     const { name, price, stock, description, category, image } = await request.json()
 
+    const allowedCategories = ["skincare", "makeup", "fragrance", "haircare", "bodycare"]
+    const safeCategory = allowedCategories.includes((category || "").toLowerCase())
+      ? (category || "").toLowerCase()
+      : "skincare"
+
     // Validate required fields
     if (!name || price === undefined || stock === undefined) {
       return NextResponse.json({ error: "Name, price, and stock are required" }, { status: 400 })
@@ -75,7 +80,7 @@ export async function POST(request) {
       price: Number(price),
       stock: Number(stock),
       description: description?.trim() || "",
-      category: category || "skincare",
+      category: safeCategory,
       images: image ? [image] : [],
       isActive: true,
     })
@@ -86,6 +91,10 @@ export async function POST(request) {
     })
   } catch (error) {
     console.error("Create product error:", error)
+    // Handle validation error clearly for the client
+    if (error?.name === "ValidationError") {
+      return NextResponse.json({ error: "Invalid product data. Ensure category is one of skincare/makeup/fragrance/haircare/bodycare." }, { status: 400 })
+    }
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
@@ -114,6 +123,11 @@ export async function PUT(request) {
 
     const { name, price, stock, description, category, image } = await request.json()
 
+    const allowedCategories = ["skincare", "makeup", "fragrance", "haircare", "bodycare"]
+    const safeCategory = allowedCategories.includes((category || "").toLowerCase())
+      ? (category || "").toLowerCase()
+      : "skincare"
+
     // Validate required fields
     if (!name || price === undefined || stock === undefined) {
       return NextResponse.json({ error: "Name, price, and stock are required" }, { status: 400 })
@@ -127,7 +141,7 @@ export async function PUT(request) {
         price: Number(price),
         stock: Number(stock),
         description: description?.trim() || "",
-        category: category || "skincare",
+        category: safeCategory,
         images: image ? [image] : [],
       },
       { new: true, runValidators: true }

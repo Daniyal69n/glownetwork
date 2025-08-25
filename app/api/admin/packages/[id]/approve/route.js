@@ -9,7 +9,7 @@ import {
   calculatePassiveIncome,
   isEligibleForPassiveIncome,
 } from "../../../../../../lib/payouts.js"
-import { checkAndPromoteUser, checkPackageBasedPromotion } from "../../../../../../lib/ranks.js"
+import { checkAndPromoteUser, checkPackageBasedPromotion, promoteUplineChain } from "../../../../../../lib/ranks.js"
 
 export async function POST(request, { params }) {
   try {
@@ -27,7 +27,16 @@ export async function POST(request, { params }) {
     }
 
     const { id } = params
-    const { action, rejectionReason } = await request.json()
+    // Safely parse body; default to approve if none provided
+    let action = "approve"
+    let rejectionReason = undefined
+    try {
+      const body = await request.json()
+      action = body?.action || action
+      rejectionReason = body?.rejectionReason
+    } catch (_) {
+      // No JSON body provided; proceed with defaults
+    }
 
     if (!["approve", "reject"].includes(action)) {
       return NextResponse.json({ error: "Invalid action. Must be 'approve' or 'reject'" }, { status: 400 })
@@ -129,15 +138,9 @@ export async function POST(request, { params }) {
       }
     }
 
-    // Check for rank promotions (for the buyer and uplines)
+    // Check for rank promotions (for the buyer and entire upline chain)
     await checkAndPromoteUser(user._id)
-    if (user.referredBy) {
-      await checkAndPromoteUser(user.referredBy)
-      const firstUpline = await User.findById(user.referredBy)
-      if (firstUpline?.referredBy) {
-        await checkAndPromoteUser(firstUpline.referredBy)
-      }
-    }
+    await promoteUplineChain(user._id)
 
     return NextResponse.json({
       message: `Package approved - ${packageAmount.toLocaleString()} credited to user's account`,

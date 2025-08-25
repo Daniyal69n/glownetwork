@@ -22,12 +22,64 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 
+type PackagePurchaseItem = {
+  _id: string
+  packageAmount: number
+  status: "pending" | "approved" | "rejected"
+  createdAt: string
+}
+
+type PayoutItem = {
+  _id: string
+  amount: number
+  status: "pending" | "released" | "paid"
+  type: "direct" | "passive"
+  level?: number
+  createdAt: string
+}
+
+type OrderItem = {
+  _id: string
+  total: number
+  status: "pending" | "approved" | "rejected" | "dispatched" | "delivered"
+  createdAt: string
+  items: Array<{ productId?: { name?: string } }>
+}
+
+type DashboardUser = {
+  _id: string
+  name: string
+  rank: "guest" | "assistant" | "manager" | "senior_manager" | "diamond_manager" | "global_manager" | "director"
+  referralCode?: string
+  packageCredit: number
+  createdAt?: string
+  directDownline?: Array<string> | Array<{ _id: string }>
+  referredBy?: { name?: string }
+}
+
+type NextRankInfo = {
+  nextRank: DashboardUser["rank"] | null
+  requirement: { description?: string } | null
+  progress: number
+  remaining: number
+}
+
+type DashboardData = {
+  user: DashboardUser
+  packagePurchases: PackagePurchaseItem[]
+  payouts: PayoutItem[]
+  orders: OrderItem[]
+  payoutStats: { pending: number; released: number; paid: number }
+  rankCounts: Record<string, number>
+  nextRankInfo?: NextRankInfo
+}
+
 export default function DashboardPage() {
-  const [dashboardData, setDashboardData] = useState(null)
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
-  const { user, token } = useAuth()
+  const { user, token, updateUser } = useAuth()
 
   useEffect(() => {
     if (user && token) {
@@ -37,6 +89,7 @@ export default function DashboardPage() {
 
   const fetchDashboardData = async () => {
     try {
+      if (!user) return
       const response = await fetch(`/api/users/${user._id}/dashboard`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -46,7 +99,11 @@ export default function DashboardPage() {
       const data = await response.json()
 
       if (response.ok) {
-        setDashboardData(data)
+        setDashboardData(data as DashboardData)
+        // If the server promoted the user, immediately sync the auth context
+        if (data?.user && data.user.rank && user?.rank && data.user.rank !== user.rank) {
+          updateUser({ ...user, ...data.user })
+        }
       } else {
         setError(data.error)
       }
@@ -57,7 +114,7 @@ export default function DashboardPage() {
     }
   }
 
-  const getStatusIcon = (status) => {
+  const getStatusIcon = (status: string) => {
     switch (status) {
       case "pending":
         return <Clock className="w-4 h-4 text-yellow-500" />
@@ -74,7 +131,7 @@ export default function DashboardPage() {
     }
   }
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
         return "bg-yellow-100 text-yellow-800"
@@ -91,7 +148,7 @@ export default function DashboardPage() {
     }
   }
 
-  const getRankBadgeColor = (rank) => {
+  const getRankBadgeColor = (rank: string | undefined) => {
     switch (rank) {
       case "assistant":
         return "bg-gray-100 text-gray-800"
@@ -235,9 +292,9 @@ export default function DashboardPage() {
                 <CardDescription>Your latest package purchase history</CardDescription>
               </CardHeader>
               <CardContent>
-                {dashboardData?.packagePurchases?.length > 0 ? (
+                {dashboardData && Array.isArray(dashboardData.packagePurchases) && dashboardData.packagePurchases.length > 0 ? (
                   <div className="space-y-3 md:space-y-4">
-                    {dashboardData.packagePurchases.map((purchase) => (
+                    {dashboardData.packagePurchases.map((purchase: PackagePurchaseItem) => (
                       <div
                         key={purchase._id}
                         className="flex items-center justify-between p-3 md:p-4 border rounded-lg"
@@ -281,9 +338,9 @@ export default function DashboardPage() {
                 <CardDescription>Your earning history</CardDescription>
               </CardHeader>
               <CardContent>
-                {dashboardData?.payouts?.length > 0 ? (
+                {dashboardData && Array.isArray(dashboardData.payouts) && dashboardData.payouts.length > 0 ? (
                   <div className="space-y-3 md:space-y-4">
-                    {dashboardData.payouts.slice(0, 5).map((payout) => (
+                    {dashboardData.payouts.slice(0, 5).map((payout: PayoutItem) => (
                       <div key={payout._id} className="flex items-center justify-between p-3 md:p-4 border rounded-lg">
                         <div className="flex items-center space-x-3 md:space-x-4 min-w-0 flex-1">
                           {getStatusIcon(payout.status)}
@@ -389,9 +446,9 @@ export default function DashboardPage() {
                 <CardDescription>Your latest product orders</CardDescription>
               </CardHeader>
               <CardContent>
-                {dashboardData?.orders?.length > 0 ? (
+                {dashboardData && Array.isArray(dashboardData.orders) && dashboardData.orders.length > 0 ? (
                   <div className="space-y-3 md:space-y-4">
-                    {dashboardData.orders.map((order) => (
+                    {dashboardData.orders.map((order: OrderItem) => (
                       <div key={order._id} className="flex items-center justify-between p-3 md:p-4 border rounded-lg">
                         <div className="flex items-center space-x-3 md:space-x-4 min-w-0 flex-1">
                           {getStatusIcon(order.status)}
