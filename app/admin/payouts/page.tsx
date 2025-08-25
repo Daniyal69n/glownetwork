@@ -9,14 +9,40 @@ import { Tabs, TabsList, TabsTrigger } from "../../../components/ui/tabs"
 import { Checkbox } from "../../../components/ui/checkbox"
 import { TrendingUp, Clock, CheckCircle, ArrowUpRight, ArrowDownRight, Calendar } from "lucide-react"
 
+interface Payout {
+  _id: string
+  amount: number
+  type: "direct" | "passive"
+  level?: number
+  status: "pending" | "released" | "paid"
+  userId: {
+    _id: string
+    name: string
+    email: string
+  } | null
+  fromUserId?: {
+    _id: string
+    name: string
+    email: string
+  } | null
+  createdAt: string
+  releasedAt?: string
+}
+
+interface Summary {
+  pending?: { total: number; count: number }
+  released?: { total: number; count: number }
+  paid?: { total: number; count: number }
+}
+
 export default function AdminPayoutsPage() {
-  const [payouts, setPayouts] = useState([])
-  const [summary, setSummary] = useState({})
+  const [payouts, setPayouts] = useState<Payout[]>([])
+  const [summary, setSummary] = useState<Summary>({})
   const [loading, setLoading] = useState(true)
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState("")
   const [message, setMessage] = useState("")
-  const [selectedPayouts, setSelectedPayouts] = useState(new Set())
+  const [selectedPayouts, setSelectedPayouts] = useState<Set<string>>(new Set())
   const [activeTab, setActiveTab] = useState("pending")
 
   const { user, token } = useAuth()
@@ -50,7 +76,7 @@ export default function AdminPayoutsPage() {
     }
   }
 
-  const handleReleasePayout = async (payoutId) => {
+  const handleReleasePayout = async (payoutId: string) => {
     setProcessing(true)
     setError("")
     setMessage("")
@@ -116,7 +142,7 @@ export default function AdminPayoutsPage() {
     }
   }
 
-  const togglePayoutSelection = (payoutId) => {
+  const togglePayoutSelection = (payoutId: string) => {
     const newSelected = new Set(selectedPayouts)
     if (newSelected.has(payoutId)) {
       newSelected.delete(payoutId)
@@ -279,11 +305,11 @@ export default function AdminPayoutsPage() {
                           )}
                         </div>
                         <p className="text-sm text-muted-foreground">
-                          <span className="font-medium">{payout.userId.name}</span> ({payout.userId.email})
+                          <span className="font-medium">{payout.userId?.name || 'Unknown User'}</span> ({payout.userId?.email || 'No email'})
                         </p>
                         <p className="text-sm text-muted-foreground">
                           {payout.type === "direct" ? "Direct Payout" : `Passive Income (Level ${payout.level})`}
-                          {payout.fromUserId && <span className="ml-2">from {payout.fromUserId.name}</span>}
+                          {payout.fromUserId && <span className="ml-2">from {payout.fromUserId?.name || 'Unknown User'}</span>}
                         </p>
                         <div className="flex items-center space-x-4 text-xs text-muted-foreground mt-1">
                           <span className="flex items-center">

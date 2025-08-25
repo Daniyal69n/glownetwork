@@ -292,10 +292,10 @@ export default function AdminPackagesPage() {
                       </div>
                       <p className="text-sm text-muted-foreground flex items-center">
                         <User className="w-3 h-3 mr-1" />
-                        {pkg.userId.name} ({pkg.userId.email})
+                        {pkg.userId?.name || 'Unknown User'} ({pkg.userId?.email || 'No email'})
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        Rank: {pkg.userId.rank ? pkg.userId.rank.replace("_", " ").toUpperCase() : "N/A"}
+                        Rank: {pkg.userId?.rank ? pkg.userId.rank.replace("_", " ").toUpperCase() : "N/A"}
                       </p>
                       <div className="flex items-center space-x-4 text-xs text-muted-foreground mt-1">
                         <span className="flex items-center">
@@ -332,7 +332,7 @@ export default function AdminPackagesPage() {
                               <DialogTitle>Reject Package Purchase</DialogTitle>
                               <DialogDescription>
                                 Provide a reason for rejecting this Rs {pkg.packageAmount.toLocaleString()} package
-                                purchase by {pkg.userId.name}.
+                                purchase by {pkg.userId?.name || 'Unknown User'}.
                               </DialogDescription>
                             </DialogHeader>
                             <div className="space-y-4">
