@@ -13,6 +13,8 @@ export function middleware(request) {
     "/api/auth/signup",
     "/api/auth/logout",
     "/api/auth/bootstrap-admin",
+    // Allow test utilities without auth in non-production
+    ...(process.env.NODE_ENV !== "production" ? ["/api/test"] : []),
   ]
 
   // Admin routes that require admin role

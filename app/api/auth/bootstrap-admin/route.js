@@ -21,6 +21,7 @@ export async function POST() {
     const admin = await User.create({
       name: "Admin User",
       email: email.toLowerCase(),
+      phone: process.env.ADMIN_PHONE || "0000000000",
       passwordHash,
       role: "admin",
       rank: "director",
