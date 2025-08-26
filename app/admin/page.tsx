@@ -26,6 +26,11 @@ interface DashboardData {
   orders?: any
   payouts?: any
   reports?: any
+  incentives?: {
+    umrahPending: Array<{ _id: string; name: string; rank: string }>
+    salaryPending: Array<{ _id: string; name: string; rank: string }>
+    carEligible: Array<{ _id: string; name: string; rank: string }>
+  }
 }
 
 export default function AdminDashboardPage() {
@@ -66,11 +71,20 @@ export default function AdminDashboardPage() {
         reportsRes.json(),
       ])
 
+      // Build incentives buckets from reports.topEarners (already enriched)
+      const users = (reportsData?.topEarners || []) as Array<any>
+      const incentives = {
+        umrahPending: users.filter((u) => u.incentives?.umrahTicket === "pending").map((u) => ({ _id: u._id, name: u.name, rank: u.rank })),
+        salaryPending: users.filter((u) => u.incentives?.fixedSalary === "pending").map((u) => ({ _id: u._id, name: u.name, rank: u.rank })),
+        carEligible: users.filter((u) => u.incentives?.carPlan === "eligible").map((u) => ({ _id: u._id, name: u.name, rank: u.rank })),
+      }
+
       setDashboardData({
         packages: packagesData,
         orders: ordersData,
         payouts: payoutsData,
         reports: reportsData,
+        incentives,
       })
     } catch (error) {
       setError("Failed to load dashboard data")
@@ -375,6 +389,63 @@ export default function AdminDashboardPage() {
               <p className="text-muted-foreground">No pending payouts</p>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Incentives */}
+      <Card className="glass border-white/20">
+        <CardHeader>
+          <CardTitle>Incentives</CardTitle>
+          <CardDescription>Eligibility and pending rewards</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <h3 className="text-sm font-semibold mb-2">Umrah Pending</h3>
+              {dashboardData?.incentives?.umrahPending?.length ? (
+                <div className="space-y-2">
+                  {dashboardData.incentives.umrahPending.map((u) => (
+                    <div key={u._id} className="flex items-center justify-between p-2 border rounded">
+                      <span className="text-sm">{u.name}</span>
+                      <Badge variant="secondary">{u.rank.replace("_", " ").toUpperCase()}</Badge>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No users pending</p>
+              )}
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold mb-2">Fixed Salary Pending</h3>
+              {dashboardData?.incentives?.salaryPending?.length ? (
+                <div className="space-y-2">
+                  {dashboardData.incentives.salaryPending.map((u) => (
+                    <div key={u._id} className="flex items-center justify-between p-2 border rounded">
+                      <span className="text-sm">{u.name}</span>
+                      <Badge variant="secondary">{u.rank.replace("_", " ").toUpperCase()}</Badge>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No users pending</p>
+              )}
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold mb-2">Car Plan Eligible</h3>
+              {dashboardData?.incentives?.carEligible?.length ? (
+                <div className="space-y-2">
+                  {dashboardData.incentives.carEligible.map((u) => (
+                    <div key={u._id} className="flex items-center justify-between p-2 border rounded">
+                      <span className="text-sm">{u.name}</span>
+                      <Badge variant="secondary">{u.rank.replace("_", " ").toUpperCase()}</Badge>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No users eligible</p>
+              )}
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>

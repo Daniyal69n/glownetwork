@@ -72,6 +72,11 @@ type DashboardData = {
   payoutStats: { pending: number; released: number; paid: number }
   rankCounts: Record<string, number>
   nextRankInfo?: NextRankInfo
+  incentives?: {
+    umrahTicket: { label: string; status: "unlocked" | "locked" }
+    fixedSalary: { label: string; status: "unlocked" | "locked" }
+    carPlan: { label: string; status: "eligible" | "locked" }
+  }
 }
 
 export default function DashboardPage() {
@@ -257,6 +262,52 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Incentives */}
+        {dashboardData?.incentives && (
+          <div className="mb-8">
+            <Card className="glass border-white/20">
+              <CardHeader>
+                <CardTitle>Incentives</CardTitle>
+                <CardDescription>Rewards unlocked as you grow</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <span>Umrah Ticket</span>
+                    <Badge variant={dashboardData.incentives.umrahTicket.status === "approved" || dashboardData.incentives.umrahTicket.status === "unlocked" ? "default" : "secondary"}>
+                      {dashboardData.incentives.umrahTicket.status === "approved"
+                        ? "Approved"
+                        : dashboardData.incentives.umrahTicket.status === "unlocked"
+                        ? "Unlocked"
+                        : "Locked"}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <span>Fixed Salary</span>
+                    <Badge variant={dashboardData.incentives.fixedSalary.status === "approved" || dashboardData.incentives.fixedSalary.status === "unlocked" ? "default" : "secondary"}>
+                      {dashboardData.incentives.fixedSalary.status === "approved"
+                        ? "Approved"
+                        : dashboardData.incentives.fixedSalary.status === "unlocked"
+                        ? "Unlocked"
+                        : "Locked"}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <span>Car Plan</span>
+                    <Badge variant={dashboardData.incentives.carPlan.status === "approved" || dashboardData.incentives.carPlan.status === "eligible" ? "default" : "secondary"}>
+                      {dashboardData.incentives.carPlan.status === "approved"
+                        ? "Approved"
+                        : dashboardData.incentives.carPlan.status === "eligible"
+                        ? "Eligible"
+                        : "Locked"}
+                    </Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
           {/* Main Content */}

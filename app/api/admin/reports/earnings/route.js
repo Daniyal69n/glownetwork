@@ -68,7 +68,7 @@ export async function GET(request) {
           count: { $sum: 1 },
         },
       },
-    ])
+    ]).allowDiskUse(true)
 
     // Get package purchase statistics
     const packageStats = await PackagePurchase.aggregate([
@@ -80,13 +80,24 @@ export async function GET(request) {
           count: { $sum: 1 },
         },
       },
-    ])
+    ]).allowDiskUse(true)
 
     // Get top earners
-    const topEarners = await User.find({})
-      .select("name email rank totalIncome releasedIncome pendingIncome")
+    const topEarnersRaw = await User.find({})
+      .select("name email rank totalIncome releasedIncome pendingIncome umrahTicketStatus fixedSalaryStatus carPlanStatus")
       .sort({ totalIncome: -1 })
       .limit(10)
+      .lean()
+
+    // Attach incentives info for admin display (computed)
+    const topEarners = topEarnersRaw.map((u) => ({
+      ...u,
+      incentives: {
+        umrahTicket: u.umrahTicketStatus,
+        fixedSalary: u.fixedSalaryStatus,
+        carPlan: u.carPlanStatus,
+      },
+    }))
 
     // Get rank distribution
     const rankDistribution = await User.aggregate([
@@ -121,6 +132,31 @@ export async function GET(request) {
       activeUsers: await User.countDocuments({ totalIncome: { $gt: 0 } }),
     }
 
+    // Build incentives lists (pending/approved) for admin UI
+    const [umrahPending, umrahApproved, salaryPending, salaryApproved, carPending, carApproved] = await Promise.all([
+      // Show users who unlocked by rank OR explicitly pending, excluding already approved
+      User.find({
+        $and: [
+          { $or: [{ rank: { $in: ["global_manager", "director"] } }, { umrahTicketStatus: { $in: ["pending"] } }] },
+          { umrahTicketStatus: { $ne: "approved" } },
+        ],
+      })
+        .select("name email rank")
+        .sort({ name: 1 })
+        .limit(200)
+        .lean(),
+      User.find({ umrahTicketStatus: "approved" }).select("name email rank").sort({ name: 1 }).limit(200).lean(),
+      // Directors always visible here unless already approved
+      User.find({ $and: [{ rank: "director" }, { fixedSalaryStatus: { $ne: "approved" } }] })
+        .select("name email rank")
+        .sort({ name: 1 })
+        .limit(200)
+        .lean(),
+      User.find({ fixedSalaryStatus: "approved" }).select("name email rank").sort({ name: 1 }).limit(200).lean(),
+      User.find({ carPlanStatus: { $in: ["pending"] } }).select("name email rank").sort({ name: 1 }).limit(200).lean(),
+      User.find({ carPlanStatus: "approved" }).select("name email rank").sort({ name: 1 }).limit(200).lean(),
+    ])
+
     return NextResponse.json({
       period,
       dateRange: dateFilter,
@@ -129,6 +165,11 @@ export async function GET(request) {
       topEarners,
       rankDistribution,
       overallStats,
+      incentives: {
+        umrah: { pending: umrahPending, approved: umrahApproved },
+        salary: { pending: salaryPending, approved: salaryApproved },
+        car: { pending: carPending, approved: carApproved },
+      },
     })
   } catch (error) {
     console.error("Earnings report error:", error)

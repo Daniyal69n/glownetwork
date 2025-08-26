@@ -70,6 +70,27 @@ export default function AdminReportsPage() {
     return `Rs ${amount?.toLocaleString() || 0}`
   }
 
+  const approveIncentive = async (userId: string, type: 'umrah' | 'salary' | 'car') => {
+    try {
+      const res = await fetch(`/api/admin/incentives/${userId}/approve?type=${type}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        // send type in query to avoid body parsing issues
+        body: JSON.stringify({}),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        console.error('Approve failed:', data)
+        alert(data?.error || 'Failed to approve')
+        return
+      }
+      await fetchReportsData()
+    } catch (e) {
+      console.error('Approve error:', e)
+      alert('Network error')
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-96">
@@ -246,11 +267,12 @@ export default function AdminReportsPage() {
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="earnings">Earnings</TabsTrigger>
               <TabsTrigger value="users">Users</TabsTrigger>
               <TabsTrigger value="performance">Performance</TabsTrigger>
+              <TabsTrigger value="incentives">Incentives</TabsTrigger>
             </TabsList>
           </Tabs>
 
@@ -440,6 +462,84 @@ export default function AdminReportsPage() {
                         </div>
                       </div>
                     ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Incentives Tab */}
+          {activeTab === "incentives" && (
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Incentives</CardTitle>
+                  <CardDescription>Pending and approved incentives</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                      <h3 className="text-sm font-semibold mb-2">Umrah</h3>
+                      <div className="space-y-2">
+                        {reportsData?.incentives?.umrah?.pending?.map((u) => (
+                          <div key={u._id} className="flex items-center justify-between p-2 border rounded">
+                            <span className="text-sm">{u.name}</span>
+                            <div className="space-x-2">
+                              <Badge variant="secondary">PENDING</Badge>
+                              <Button size="sm" variant="outline" onClick={() => approveIncentive(u._id, 'umrah')}>Approve</Button>
+                            </div>
+                          </div>
+                        ))}
+                        {reportsData?.incentives?.umrah?.approved?.map((u) => (
+                          <div key={u._id} className="flex items-center justify-between p-2 border rounded bg-green-50">
+                            <span className="text-sm">{u.name}</span>
+                            <Badge className="bg-green-100 text-green-800">APPROVED</Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="text-sm font-semibold mb-2">Fixed Salary</h3>
+                      <div className="space-y-2">
+                        {reportsData?.incentives?.salary?.pending?.map((u) => (
+                          <div key={u._id} className="flex items-center justify-between p-2 border rounded">
+                            <span className="text-sm">{u.name}</span>
+                            <div className="space-x-2">
+                              <Badge variant="secondary">PENDING</Badge>
+                              <Button size="sm" variant="outline" onClick={() => approveIncentive(u._id, 'salary')}>Approve</Button>
+                            </div>
+                          </div>
+                        ))}
+                        {reportsData?.incentives?.salary?.approved?.map((u) => (
+                          <div key={u._id} className="flex items-center justify-between p-2 border rounded bg-green-50">
+                            <span className="text-sm">{u.name}</span>
+                            <Badge className="bg-green-100 text-green-800">APPROVED</Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="text-sm font-semibold mb-2">Car Plan</h3>
+                      <div className="space-y-2">
+                        {reportsData?.incentives?.car?.pending?.map((u) => (
+                          <div key={u._id} className="flex items-center justify-between p-2 border rounded">
+                            <span className="text-sm">{u.name}</span>
+                            <div className="space-x-2">
+                              <Badge variant="secondary">PENDING</Badge>
+                              <Button size="sm" variant="outline" onClick={() => approveIncentive(u._id, 'car')}>Approve</Button>
+                            </div>
+                          </div>
+                        ))}
+                        {reportsData?.incentives?.car?.approved?.map((u) => (
+                          <div key={u._id} className="flex items-center justify-between p-2 border rounded bg-green-50">
+                            <span className="text-sm">{u.name}</span>
+                            <Badge className="bg-green-100 text-green-800">APPROVED</Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

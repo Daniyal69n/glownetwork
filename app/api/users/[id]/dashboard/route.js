@@ -24,6 +24,8 @@ export async function GET(request, { params }) {
     }
 
     const { id } = params
+    const url = new URL(request.url)
+    const forceFull = url.searchParams.get("forceFull") === "1"
 
     // Validate ObjectId early; avoid CastErrors causing 500
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -111,9 +113,21 @@ export async function GET(request, { params }) {
 
     let rankCounts = {}
     try {
-      rankCounts = await withTimeout(getDownlineRankCounts(user._id), 1000, defaultRankCounts)
+      rankCounts = forceFull
+        ? await getDownlineRankCounts(user._id)
+        : await withTimeout(getDownlineRankCounts(user._id), 3000, defaultRankCounts)
     } catch (_) {
       rankCounts = defaultRankCounts
+    }
+
+    // If not forceFull and still zero, derive a quick fallback using direct downline ranks
+    if (!forceFull && rankCounts && Object.values(rankCounts).every((v) => v === 0) && Array.isArray(user.directDownline)) {
+      const quickCounts = { ...defaultRankCounts }
+      user.directDownline.forEach((m) => {
+        const r = m?.rank
+        if (r && quickCounts[r] !== undefined) quickCounts[r] += 1
+      })
+      rankCounts = quickCounts
     }
 
     // Get next rank requirements
@@ -183,6 +197,35 @@ export async function GET(request, { params }) {
       orders,
       payoutStats,
       rankCounts,
+      incentives: {
+        umrahTicket: {
+          label: "Umrah Ticket",
+          status:
+            user.umrahTicketStatus === "approved"
+              ? "approved"
+              : ["global_manager", "director"].includes(user.rank)
+              ? "unlocked"
+              : "locked",
+        },
+        fixedSalary: {
+          label: "Fixed Salary",
+          status:
+            user.fixedSalaryStatus === "approved"
+              ? "approved"
+              : user.rank === "director"
+              ? "unlocked"
+              : "locked",
+        },
+        carPlan: {
+          label: "Car Plan",
+          status:
+            user.carPlanStatus === "approved"
+              ? "approved"
+              : user.rank === "director" && (rankCounts?.director || 0) >= 2
+              ? "eligible"
+              : "locked",
+        },
+      },
       stats: {
         totalDownline: Object.values(rankCounts).reduce((a, b) => a + b, 0),
         packageCredit: user.packageCredit,

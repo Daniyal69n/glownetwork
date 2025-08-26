@@ -234,6 +234,11 @@ export default function AdminUsersPage() {
                         <span className="text-xs text-muted-foreground">
                           Released: Rs {user.releasedIncome?.toLocaleString() || 0}
                         </span>
+                        {user.incentives && (
+                          <span className="text-xs">
+                            Incentives: {user.incentives.umrahTicket === 'pending' ? 'Umrah pending' : 'Umrah locked'} · {user.incentives.fixedSalary === 'pending' ? 'Salary pending' : 'Salary locked'} · {user.incentives.carPlan === 'eligible' ? 'Car eligible' : 'Car locked'}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>

@@ -73,6 +73,22 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    // Incentive statuses
+    umrahTicketStatus: {
+      type: String,
+      enum: ["locked", "pending", "approved"],
+      default: "locked",
+    },
+    fixedSalaryStatus: {
+      type: String,
+      enum: ["locked", "pending", "approved"],
+      default: "locked",
+    },
+    carPlanStatus: {
+      type: String,
+      enum: ["locked", "pending", "approved"],
+      default: "locked",
+    },
   },
   {
     timestamps: true,
