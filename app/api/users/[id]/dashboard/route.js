@@ -6,6 +6,7 @@ import Payout from "../../../../../models/Payout.js"
 import Order from "../../../../../models/Order.js"
 import { verifyToken, getTokenFromRequest } from "../../../../../lib/auth.js"
 import { getNextRankRequirements, getDownlineRankCounts, checkAndPromoteUser } from "../../../../../lib/ranks.js"
+import mongoose from "mongoose"
 
 export async function GET(request, { params }) {
   try {
@@ -24,53 +25,69 @@ export async function GET(request, { params }) {
 
     const { id } = params
 
+    // Validate ObjectId early; avoid CastErrors causing 500
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json({ error: "Invalid user id" }, { status: 400 })
+    }
+
     // Check if user is accessing their own dashboard or admin accessing any
     if (decoded.userId !== id && decoded.role !== "admin") {
       return NextResponse.json({ error: "Access denied" }, { status: 403 })
     }
 
-    // Re-evaluate promotions so rank reflects latest downline before rendering
-    await checkAndPromoteUser(id)
+    // Re-evaluate promotions in the background; do not block dashboard render
+    checkAndPromoteUser(id).catch(() => {})
 
-    // Get user data (after possible promotion)
+    // Get user data (after possible promotion) - lean for performance
     const user = await User.findById(id)
       .populate("directDownline", "name email rank")
       .populate("referredBy", "name email referralCode")
+      .lean()
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
-    // Get package purchases
-    const packagePurchases = await PackagePurchase.find({ userId: id })
-      .populate("adminId", "name email")
-      .sort({ createdAt: -1 })
-      .limit(5)
+    // Fetch related data in parallel with safe fallbacks; lean for performance
+    const [pkgRes, payRes, ordRes] = await Promise.allSettled([
+      PackagePurchase.find({ userId: id })
+        .populate("adminId", "name email")
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .lean(),
+      Payout.find({ userId: id })
+        .populate("fromUserId", "name email")
+        .sort({ createdAt: -1 })
+        .limit(10)
+        .lean(),
+      Order.find({ userId: id })
+        .populate("items.productId", "title images")
+        .populate("adminId", "name email")
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .lean(),
+    ])
 
-    // Get payouts
-    const payouts = await Payout.find({ userId: id })
-      .populate("fromUserId", "name email")
-      .sort({ createdAt: -1 })
-      .limit(10)
-
-    // Get recent orders
-    const orders = await Order.find({ userId: id })
-      .populate("items.productId", "name image")
-      .populate("adminId", "name email")
-      .sort({ createdAt: -1 })
-      .limit(5)
+    const packagePurchases = pkgRes.status === "fulfilled" ? pkgRes.value : []
+    const payouts = payRes.status === "fulfilled" ? payRes.value : []
+    const orders = ordRes.status === "fulfilled" ? ordRes.value : []
 
     // Calculate payout summaries
-    const payoutSummary = await Payout.aggregate([
-      { $match: { userId: user._id } },
-      {
-        $group: {
-          _id: "$status",
-          total: { $sum: "$amount" },
-          count: { $sum: 1 },
+    let payoutSummary = []
+    try {
+      payoutSummary = await Payout.aggregate([
+        { $match: { userId: user._id } },
+        {
+          $group: {
+            _id: "$status",
+            total: { $sum: "$amount" },
+            count: { $sum: 1 },
+          },
         },
-      },
-    ])
+      ])
+    } catch (_) {
+      payoutSummary = []
+    }
 
     const payoutStats = {
       pending: 0,
@@ -83,7 +100,21 @@ export async function GET(request, { params }) {
     })
 
     // Get downline count by rank (entire tree, not only direct)
-    const rankCounts = await getDownlineRankCounts(user._id)
+    // Compute rank counts with a timeout fallback to avoid slow loads
+    const defaultRankCounts = { guest: 0, assistant: 0, manager: 0, senior_manager: 0, diamond_manager: 0, global_manager: 0, director: 0 }
+    async function withTimeout(promise, ms, fallback) {
+      return Promise.race([
+        promise,
+        new Promise((resolve) => setTimeout(() => resolve(fallback), ms)),
+      ])
+    }
+
+    let rankCounts = {}
+    try {
+      rankCounts = await withTimeout(getDownlineRankCounts(user._id), 1000, defaultRankCounts)
+    } catch (_) {
+      rankCounts = defaultRankCounts
+    }
 
     // Get next rank requirements
     const nextRankInfo = getNextRankRequirements(user)

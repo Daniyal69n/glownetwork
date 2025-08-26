@@ -74,8 +74,17 @@ export async function POST(request, { params }) {
     const user = packagePurchase.userId
     const packageAmount = packagePurchase.packageAmount
 
-    // Update user's package credit
-    user.packageCredit += packageAmount
+    // Update user's package credit (apply delivery charge deduction for credit only)
+    const getDeliveryCharge = (amount) => {
+      if (amount === 20000) return 1000
+      if (amount === 50000) return 1500
+      if (amount === 100000) return 2000
+      return 0
+    }
+
+    const deliveryCharge = getDeliveryCharge(packageAmount)
+    const netCredit = packageAmount - deliveryCharge
+    user.packageCredit += netCredit
     await user.save()
 
     // Check for package-based rank promotion
@@ -143,7 +152,7 @@ export async function POST(request, { params }) {
     await promoteUplineChain(user._id)
 
     return NextResponse.json({
-      message: `Package approved - ${packageAmount.toLocaleString()} credited to user's account`,
+      message: `Package approved - Rs ${netCredit.toLocaleString()} credited after Rs ${deliveryCharge.toLocaleString()} delivery charges`,
       purchase: packagePurchase,
       directPayout: directPayoutAmount,
     })
