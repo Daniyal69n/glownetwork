@@ -273,35 +273,65 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="flex items-center justify-between p-3 border rounded-lg">
-                    <span>Umrah Ticket</span>
-                    <Badge variant={dashboardData.incentives.umrahTicket.status === "approved" || dashboardData.incentives.umrahTicket.status === "unlocked" ? "default" : "secondary"}>
-                      {dashboardData.incentives.umrahTicket.status === "approved"
-                        ? "Approved"
-                        : dashboardData.incentives.umrahTicket.status === "unlocked"
-                        ? "Unlocked"
-                        : "Locked"}
-                    </Badge>
+                  <div className="p-4 rounded-xl border bg-gradient-to-br from-primary/5 to-transparent hover:from-primary/10 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Gift className="w-4 h-4 text-primary" />
+                        </div>
+                        <span className="font-medium">Umrah Ticket</span>
+                      </div>
+                      <Badge variant={(dashboardData.incentives.umrahTicket.status as any) === "approved" || dashboardData.incentives.umrahTicket.status === "unlocked" ? "default" : "secondary"}>
+                        {(dashboardData.incentives.umrahTicket.status as any) === "approved"
+                          ? "Approved"
+                          : dashboardData.incentives.umrahTicket.status === "unlocked"
+                          ? "Unlocked"
+                          : "Locked"}
+                      </Badge>
+                    </div>
+                    {dashboardData.incentives.umrahTicket.status === "locked" && (
+                      <p className="text-xs text-muted-foreground mt-2">Reach Global Manager to unlock.</p>
+                    )}
                   </div>
-                  <div className="flex items-center justify-between p-3 border rounded-lg">
-                    <span>Fixed Salary</span>
-                    <Badge variant={dashboardData.incentives.fixedSalary.status === "approved" || dashboardData.incentives.fixedSalary.status === "unlocked" ? "default" : "secondary"}>
-                      {dashboardData.incentives.fixedSalary.status === "approved"
-                        ? "Approved"
-                        : dashboardData.incentives.fixedSalary.status === "unlocked"
-                        ? "Unlocked"
-                        : "Locked"}
-                    </Badge>
+                  <div className="p-4 rounded-xl border bg-gradient-to-br from-emerald-500/5 to-transparent hover:from-emerald-500/10 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                          <Star className="w-4 h-4 text-emerald-600" />
+                        </div>
+                        <span className="font-medium">Fixed Salary</span>
+                      </div>
+                      <Badge variant={(dashboardData.incentives.fixedSalary.status as any) === "approved" || dashboardData.incentives.fixedSalary.status === "unlocked" ? "default" : "secondary"}>
+                        {(dashboardData.incentives.fixedSalary.status as any) === "approved"
+                          ? "Approved"
+                          : dashboardData.incentives.fixedSalary.status === "unlocked"
+                          ? "Unlocked"
+                          : "Locked"}
+                      </Badge>
+                    </div>
+                    {dashboardData.incentives.fixedSalary.status === "locked" && (
+                      <p className="text-xs text-muted-foreground mt-2">Reach Director to unlock.</p>
+                    )}
                   </div>
-                  <div className="flex items-center justify-between p-3 border rounded-lg">
-                    <span>Car Plan</span>
-                    <Badge variant={dashboardData.incentives.carPlan.status === "approved" || dashboardData.incentives.carPlan.status === "eligible" ? "default" : "secondary"}>
-                      {dashboardData.incentives.carPlan.status === "approved"
-                        ? "Approved"
-                        : dashboardData.incentives.carPlan.status === "eligible"
-                        ? "Eligible"
-                        : "Locked"}
-                    </Badge>
+                  <div className="p-4 rounded-xl border bg-gradient-to-br from-blue-500/5 to-transparent hover:from-blue-500/10 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center">
+                          <TrendingUp className="w-4 h-4 text-blue-600" />
+                        </div>
+                        <span className="font-medium">Car Plan</span>
+                      </div>
+                      <Badge variant={(dashboardData.incentives.carPlan.status as any) === "approved" || dashboardData.incentives.carPlan.status === "eligible" ? "default" : "secondary"}>
+                        {(dashboardData.incentives.carPlan.status as any) === "approved"
+                          ? "Approved"
+                          : dashboardData.incentives.carPlan.status === "eligible"
+                          ? "Eligible"
+                          : "Locked"}
+                      </Badge>
+                    </div>
+                    {dashboardData.incentives.carPlan.status === "locked" && (
+                      <p className="text-xs text-muted-foreground mt-2">Invite 2 Directors under you to unlock.</p>
+                    )}
                   </div>
                 </div>
               </CardContent>
