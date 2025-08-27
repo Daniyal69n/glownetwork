@@ -45,6 +45,24 @@ export async function POST(request) {
       rank: "guest",
     })
 
+    // Ensure numeric referral code for the new user (sequential from 1000)
+    if (!newUser.referralCode || !/^\d+$/.test(newUser.referralCode)) {
+      try {
+        const last = await User.aggregate([
+          { $match: { referralCode: { $regex: /^\d+$/ } } },
+          { $addFields: { refNum: { $toInt: "$referralCode" } } },
+          { $sort: { refNum: -1 } },
+          { $limit: 1 },
+        ])
+        const lastNum = last.length > 0 ? last[0].refNum : 999
+        const nextNum = lastNum + 1
+        newUser.referralCode = String(nextNum)
+        await newUser.save()
+      } catch (_) {
+        // ignore and continue; signup should not fail due to referral assignment
+      }
+    }
+
     // Add new user to upline's direct downline
     if (uplineUser) {
       uplineUser.directDownline.push(newUser._id)

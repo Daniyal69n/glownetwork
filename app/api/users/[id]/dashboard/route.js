@@ -185,6 +185,7 @@ export async function GET(request, { params }) {
         email: user.email,
         rank: user.rank,
         referralCode: user.referralCode,
+        createdAt: user.createdAt,
         packageCredit: user.packageCredit,
         totalIncome: user.totalIncome,
         pendingIncome: user.pendingIncome,

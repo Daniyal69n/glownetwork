@@ -95,13 +95,29 @@ const UserSchema = new mongoose.Schema(
   },
 )
 
-// Generate unique referral code
-UserSchema.pre("save", function (next) {
-  if (!this.referralCode) {
-    this.referralCode =
-      this.name.replace(/\s+/g, "").toUpperCase() + Math.random().toString(36).substr(2, 4).toUpperCase()
+// Generate sequential numeric referral code starting from 1000
+UserSchema.pre("save", async function (next) {
+  try {
+    if (!this.isNew || this.referralCode) return next()
+
+    const Model = this.constructor
+
+    // Find the highest numeric referral code currently in use
+    const last = await Model.aggregate([
+      { $match: { referralCode: { $regex: /^\d+$/ } } },
+      { $addFields: { refNum: { $toInt: "$referralCode" } } },
+      { $sort: { refNum: -1 } },
+      { $limit: 1 },
+    ])
+
+    const lastNum = last.length > 0 ? last[0].refNum : 999
+    const nextNum = lastNum + 1
+
+    this.referralCode = String(nextNum)
+    return next()
+  } catch (err) {
+    return next(err)
   }
-  next()
 })
 
 export default mongoose.models.User || mongoose.model("User", UserSchema)

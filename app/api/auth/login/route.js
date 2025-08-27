@@ -31,6 +31,25 @@ export async function POST(request) {
       return NextResponse.json({ error: "Invalid email or password" }, { status: 401 })
     }
 
+    // Migrate legacy referral codes (non-numeric) to sequential numbers starting at 1000
+    if (!user.referralCode || !/^\d+$/.test(user.referralCode)) {
+      try {
+        const last = await User.aggregate([
+          { $match: { referralCode: { $regex: /^\d+$/ } } },
+          { $addFields: { refNum: { $toInt: "$referralCode" } } },
+          { $sort: { refNum: -1 } },
+          { $limit: 1 },
+        ])
+
+        const lastNum = last.length > 0 ? last[0].refNum : 999
+        const nextNum = lastNum + 1
+        user.referralCode = String(nextNum)
+        await user.save()
+      } catch (_) {
+        // If migration fails, proceed without blocking login
+      }
+    }
+
     // Generate JWT token
     const token = generateToken({
       userId: user._id,

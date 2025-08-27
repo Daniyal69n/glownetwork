@@ -581,6 +581,13 @@ export default function DashboardPage() {
                 <div>
                   <p className="text-sm text-muted-foreground">Referral Code</p>
                   <p className="font-mono font-semibold text-sm md:text-base">{dashboardData?.user?.referralCode}</p>
+                  {dashboardData?.user?.referralCode && (
+                    <p className="text-xs md:text-sm mt-1">
+                      <Link href={`/signup?ref=${dashboardData.user.referralCode}`} className="text-primary underline break-all">
+                        {`${typeof window !== 'undefined' ? window.location.origin : ''}/signup?ref=${dashboardData.user.referralCode}`}
+                      </Link>
+                    </p>
+                  )}
                 </div>
                 {dashboardData?.user?.referredBy && (
                   <div>
@@ -591,7 +598,7 @@ export default function DashboardPage() {
                 <div>
                   <p className="text-sm text-muted-foreground">Member Since</p>
                   <p className="font-medium text-sm md:text-base">
-                    {new Date(dashboardData?.user?.createdAt || Date.now()).toLocaleDateString()}
+                    {dashboardData?.user?.createdAt ? new Date(dashboardData.user.createdAt).toLocaleDateString() : "-"}
                   </p>
                 </div>
               </CardContent>
