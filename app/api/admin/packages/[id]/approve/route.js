@@ -90,57 +90,38 @@ export async function POST(request, { params }) {
     // Check for package-based rank promotion
     const packagePromotion = await checkPackageBasedPromotion(user._id, packageAmount)
 
-    // Calculate and create direct payout for the buyer
-    const directPayoutAmount = calculateDirectPayout(packageAmount, user.rank)
-    await Payout.create({
-      userId: user._id,
-      amount: directPayoutAmount,
-      type: "direct",
-      status: "pending",
-      relatedPackagePurchaseId: packagePurchase._id,
-    })
-
-    // Update user's pending income
-    user.pendingIncome += directPayoutAmount
-    await user.save()
-
-    // Calculate passive income for uplines (1st and 2nd level)
+    // Create payouts for uplines only (buyer gets no payout)
+    let directPayoutAmount = 0
     if (user.referredBy) {
-      // First level upline
       const firstUpline = await User.findById(user.referredBy)
-      if (firstUpline && isEligibleForPassiveIncome(firstUpline.rank, 1)) {
-        const passiveAmount = calculatePassiveIncome(packageAmount)
+      if (firstUpline) {
+        // Direct payout to referrer
+        directPayoutAmount = calculateDirectPayout(packageAmount, user.rank)
         await Payout.create({
           userId: firstUpline._id,
-          amount: passiveAmount,
-          type: "passive",
-          fromUserId: user._id,
+          amount: directPayoutAmount,
+          type: "direct",
           status: "pending",
           relatedPackagePurchaseId: packagePurchase._id,
-          level: 1,
         })
-
-        // Update first upline's pending income
-        firstUpline.pendingIncome += passiveAmount
+        firstUpline.pendingIncome += directPayoutAmount
         await firstUpline.save()
 
-        // Second level upline
+        // Passive income to referrer's referrer (second level only)
         if (firstUpline.referredBy) {
           const secondUpline = await User.findById(firstUpline.referredBy)
-          if (secondUpline && isEligibleForPassiveIncome(secondUpline.rank, 2)) {
-            const secondPassiveAmount = calculatePassiveIncome(packageAmount)
+          if (secondUpline) {
+            const passiveAmount = calculatePassiveIncome(packageAmount)
             await Payout.create({
               userId: secondUpline._id,
-              amount: secondPassiveAmount,
+              amount: passiveAmount,
               type: "passive",
               fromUserId: user._id,
               status: "pending",
               relatedPackagePurchaseId: packagePurchase._id,
               level: 2,
             })
-
-            // Update second upline's pending income
-            secondUpline.pendingIncome += secondPassiveAmount
+            secondUpline.pendingIncome += passiveAmount
             await secondUpline.save()
           }
         }

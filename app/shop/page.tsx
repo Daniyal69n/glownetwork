@@ -16,6 +16,7 @@ import {
   DialogTrigger,
 } from "../../components/ui/dialog"
 import { ShoppingCart, Search, Filter, Plus, Minus, Package, CheckCircle } from "lucide-react"
+import { toast } from "../../hooks/use-toast"
 
 export default function ShopPage() {
   const [products, setProducts] = useState([])
@@ -63,6 +64,10 @@ export default function ShopPage() {
     } else {
       setCart([...cart, { productId: product._id, product, quantity: 1 }])
     }
+    toast({
+      title: "Added to cart",
+      description: `${product.title} has been added to your cart`,
+    })
   }
 
   const removeFromCart = (productId) => {

@@ -5,6 +5,7 @@ import { GeistMono } from "geist/font/mono"
 import "./globals.css"
 import { AuthProvider } from "../lib/auth-context"
 import { SiteHeader } from "../components/site-header"
+import { Toaster } from "../components/ui/toaster"
 
 export const metadata: Metadata = {
   title: "GLOW NETWORK - Beauty & Cosmetics MLM",
@@ -24,6 +25,7 @@ export default function RootLayout({
         <AuthProvider>
           <SiteHeader />
           {children}
+          <Toaster />
         </AuthProvider>
       </body>
     </html>
