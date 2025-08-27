@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../..
 import { Badge } from "../../components/ui/badge"
 import { Alert, AlertDescription } from "../../components/ui/alert"
 import { CheckCircle, Star, Package, TrendingUp, Users, Gift } from "lucide-react"
+import Celebration from "../../components/ui/celebration"
+import { useCelebration } from "../../hooks/use-celebration"
 
 export default function PackagesPage() {
   const [packages, setPackages] = useState([])
@@ -15,6 +17,7 @@ export default function PackagesPage() {
   const [error, setError] = useState("")
 
   const { user, token } = useAuth()
+  const celebration = useCelebration()
 
   useEffect(() => {
     fetchPackages()
@@ -61,6 +64,10 @@ export default function PackagesPage() {
 
       if (response.ok) {
         setMessage(data.message)
+        celebration.celebrate(
+          "Purchase successful!",
+          `You purchased Rs ${packageAmount.toLocaleString()}.`
+        )
       } else {
         setError(data.error)
       }
@@ -106,6 +113,12 @@ export default function PackagesPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-primary/5">
       <div className="container mx-auto px-4 py-6 md:py-8">
+        <Celebration
+          visible={celebration.visible}
+          title={celebration.title || "Congratulations!"}
+          subtitle={celebration.subtitle}
+          onClose={celebration.hide}
+        />
         {/* Header */}
         <div className="text-center mb-8 md:mb-12">
           <h1 className="text-3xl md:text-4xl font-bold mb-4">Choose Your Package</h1>

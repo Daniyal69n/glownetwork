@@ -21,6 +21,9 @@ import {
   Target,
 } from "lucide-react"
 import Link from "next/link"
+import Celebration from "../../components/ui/celebration"
+import { useCelebration } from "../../hooks/use-celebration"
+import { isRankHigher } from "../../lib/frontend-ranks"
 
 type PackagePurchaseItem = {
   _id: string
@@ -85,6 +88,7 @@ export default function DashboardPage() {
   const [error, setError] = useState("")
 
   const { user, token, updateUser } = useAuth()
+  const celebration = useCelebration()
 
   useEffect(() => {
     if (user && token) {
@@ -105,9 +109,25 @@ export default function DashboardPage() {
 
       if (response.ok) {
         setDashboardData(data as DashboardData)
-        // If the server promoted the user, immediately sync the auth context
-        if (data?.user && data.user.rank && user?.rank && data.user.rank !== user.rank) {
-          updateUser({ ...user, ...data.user })
+        // Sync auth context if server rank changed
+        if (data?.user) {
+          const serverRank = data.user.rank
+          const currentRank = user?.rank
+          const lastCelebrated = typeof window !== 'undefined' ? localStorage.getItem("lastCelebratedRank") : null
+
+          if (currentRank && serverRank && serverRank !== currentRank) {
+            updateUser({ ...user!, ...data.user })
+          }
+
+          // Celebrate if rank increased compared to either current or last celebrated
+          const baseline = (lastCelebrated as any) || currentRank
+          if (serverRank && baseline && isRankHigher(serverRank, baseline)) {
+            celebration.celebrate(
+              "Rank Up!",
+              `You are now ${serverRank.replace("_", " ").toUpperCase()}.`
+            )
+            try { localStorage.setItem("lastCelebratedRank", serverRank) } catch {}
+          }
         }
       } else {
         setError(data.error)
@@ -193,6 +213,12 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-primary/5">
       <div className="container mx-auto px-4 py-6 md:py-8">
+        <Celebration
+          visible={celebration.visible}
+          title={celebration.title}
+          subtitle={celebration.subtitle}
+          onClose={celebration.hide}
+        />
         {/* Header */}
         <div className="mb-6 md:mb-8">
           <h1 className="text-2xl md:text-3xl font-bold mb-2">Welcome back, {dashboardData?.user?.name}!</h1>
