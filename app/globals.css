@@ -372,20 +372,24 @@
   /* Particle effects */
   .particles {
     position: relative;
-    overflow: hidden;
+    overflow-x: hidden;
+    z-index: 0;
   }
 
   .particles::before {
     content: '';
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
+    width: 100vw;
+    height: 100vh;
     background-image: radial-gradient(circle at 20% 80%, rgba(27, 23, 255, 0.1) 0%, transparent 50%),
                       radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
                       radial-gradient(circle at 40% 40%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
     animation: rotate-slow 30s linear infinite;
+    pointer-events: none;
+    z-index: -1;
+    will-change: transform;
   }
 
   /* Enhanced mobile utilities */

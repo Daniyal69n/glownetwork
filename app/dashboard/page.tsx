@@ -19,6 +19,9 @@ import {
   ArrowRight,
   ShoppingCart,
   Target,
+  Copy,
+  Check,
+  Link as LinkIcon,
 } from "lucide-react"
 import Link from "next/link"
 import Celebration from "../../components/ui/celebration"
@@ -55,6 +58,8 @@ type DashboardUser = {
   rank: "guest" | "assistant" | "manager" | "senior_manager" | "diamond_manager" | "global_manager" | "director"
   referralCode?: string
   packageCredit: number
+  totalIncome?: number
+  pendingIncome?: number
   createdAt?: string
   directDownline?: Array<string> | Array<{ _id: string }>
   referredBy?: { name?: string }
@@ -86,6 +91,7 @@ export default function DashboardPage() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const [copied, setCopied] = useState(false)
 
   const { user, token, updateUser } = useAuth()
   const celebration = useCelebration()
@@ -115,6 +121,24 @@ export default function DashboardPage() {
       setError("Network error")
     } finally {
       setLoading(false)
+    }
+  }
+
+  const copyReferralLink = async () => {
+    const referralLink = `${window.location.origin}/signup?ref=${dashboardData?.user.referralCode}`
+    try {
+      await navigator.clipboard.writeText(referralLink)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1800)
+    } catch (err) {
+      const textarea = document.createElement("textarea")
+      textarea.value = referralLink
+      document.body.appendChild(textarea)
+      textarea.select()
+      document.execCommand("copy")
+      document.body.removeChild(textarea)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1800)
     }
   }
 
@@ -217,6 +241,36 @@ export default function DashboardPage() {
             <CardContent>
               <div className="text-2xl font-bold">Rs {dashboardUser.packageCredit?.toLocaleString() || "0"}</div>
               <p className="text-xs text-muted-foreground">Available credit</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Referral Section */}
+        <div className="mb-6 animate-fade-in-scale">
+          <Card className="glass-enhanced interactive-card max-w-3xl mx-auto">
+            <CardHeader className="pb-3">
+              <CardTitle className="gradient-text flex items-center text-lg">
+                <LinkIcon className="mr-2 h-4 w-4" />
+                Referral
+              </CardTitle>
+              <CardDescription className="text-xs">Share your personal signup link</CardDescription>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="space-y-2">
+                <div className="text-xs text-muted-foreground">Your code</div>
+                <div className="px-3 py-1.5 rounded-md bg-primary/5 border border-primary/20 font-mono inline-flex text-sm">
+                  {dashboardUser.referralCode}
+                </div>
+                <div className="text-xs text-muted-foreground pt-1">Referral link</div>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 px-3 py-2 rounded-md bg-background border text-xs font-mono truncate">
+                    {typeof window !== "undefined" ? `${window.location.origin}/signup?ref=${dashboardUser.referralCode}` : ""}
+                  </div>
+                  <Button variant="outline" size="sm" onClick={copyReferralLink} className="shrink-0 h-8 px-3">
+                    {copied ? (<><Check className="h-4 w-4 mr-1" />Copied</>) : (<><Copy className="h-4 w-4 mr-1" />Copy</>)}
+                  </Button>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -370,7 +424,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <Celebration />
+      <Celebration visible={celebration.visible} />
     </div>
   )
 }

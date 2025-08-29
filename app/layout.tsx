@@ -21,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <head />
-      <body className="min-h-screen bg-background text-foreground font-sans antialiased">
+      <body className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-primary/5 text-foreground font-sans antialiased particles">
         <AuthProvider>
           <SiteHeader />
           {children}
