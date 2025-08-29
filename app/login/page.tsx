@@ -7,7 +7,7 @@ import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card"
 import { Alert, AlertDescription } from "../../components/ui/alert"
-import { Eye, EyeOff, Mail, Lock, Sparkles } from "lucide-react"
+import { Eye, EyeOff, Mail, Lock } from "lucide-react"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -64,28 +64,32 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-primary/5 p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-primary/5 particles">
+      <div className="w-full max-w-md animate-fade-in-scale">
         {/* Logo/Brand */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-            <Sparkles className="w-8 h-8 text-primary" />
+          <div className="animate-float mb-6">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-primary/20 to-primary/10 glow-primary">
+              <div className="w-12 h-12 bg-gradient-to-r from-primary to-primary/70 rounded-full flex items-center justify-center animate-pulse-glow">
+                <span className="text-white font-bold text-lg">G</span>
+              </div>
+            </div>
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold gradient-text-rainbow mb-2">
             GLOW NETWORK
           </h1>
-          <p className="text-muted-foreground mt-2">Welcome back to your beauty journey</p>
+          <p className="text-muted-foreground mt-2 animate-slide-in-up">Welcome back to your beauty journey</p>
         </div>
 
-        <Card className="glass border-white/20 shadow-xl">
+        <Card className="glass-enhanced shadow-2xl animate-slide-in-up">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">Sign In</CardTitle>
+            <CardTitle className="text-2xl font-bold text-center gradient-text">Sign In</CardTitle>
             <CardDescription className="text-center">Enter your credentials to access your account</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <Alert variant="destructive">
+                <Alert variant="destructive" className="animate-fade-in-scale">
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
@@ -102,7 +106,7 @@ export default function LoginPage() {
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 glass-card border-primary/20 focus:border-primary/50 focus:ring-primary/20"
                     required
                   />
                 </div>
@@ -120,28 +124,36 @@ export default function LoginPage() {
                     placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-10"
+                    className="pl-10 pr-10 glass-card border-primary/20 focus:border-primary/50 focus:ring-primary/20"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
+                    className="absolute right-3 top-3 text-muted-foreground hover:text-primary transition-colors"
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
               </div>
 
-              <Button type="submit" className="w-full gradient-brand text-white font-semibold" disabled={loading}>
-                {loading ? "Signing In..." : "Sign In"}
+              <Button 
+                type="submit" 
+                className="w-full gradient-brand-rainbow text-white font-semibold interactive-button glow-primary-hover" 
+                disabled={loading}
+              >
+                {loading ? (
+                  <span className="loading-dots">Signing In</span>
+                ) : (
+                  "Sign In"
+                )}
               </Button>
             </form>
 
             <div className="mt-6 text-center space-y-2">
               <p className="text-sm text-muted-foreground">
                 Don't have an account?{" "}
-                <Link href="/signup" className="text-primary hover:underline font-medium">
+                <Link href="/signup" className="text-primary hover:text-primary/80 font-medium transition-colors">
                   Sign up here
                 </Link>
               </p>
